@@ -175,7 +175,7 @@ def init_S(N, M, K, peaks=None, img=None):
         for pk, peak in enumerate(peaks):
             if peak is None:
                 logger.warn("Using random S matrix for peak {0}".format(pk))
-                S[pk,:] = np.random.rand(N)
+                S[pk,:] = np.random.rand(N*M)
             else:
                 px, py = peak
                 S[pk, cy*M+cx] = np.abs(img[:,int(py),int(px)].mean()) + tiny
@@ -237,9 +237,12 @@ def translate_psfs(shape, peaks, B, P, threshold=1e-8):
     Tx = []
     Ty = []
     cx, cy = int(shape[1]/2), int(shape[0]/2)
-    for pk, (px, py) in enumerate(peaks):
-        dx = cx - px
-        dy = cy - py
+    for pk, peak in enumerate(peaks):
+        if peak is None:
+            dx = dy = 0
+        else:
+            dx = cx - px
+            dy = cy - py
         tx, ty, _ = operators.getTranslationOp(dx, dy, shape, threshold=threshold)
         Tx.append(tx)
         Ty.append(ty)
@@ -319,7 +322,8 @@ def deblend(img,
             update_order=None,
             steps_g=None,
             steps_g_update='steps_f',
-            truncate=False):
+            truncate=False,
+            garbage_collectors=0):
 
     # vectorize image cubes
     B,N,M = img.shape
@@ -352,12 +356,19 @@ def deblend(img,
         P_ = psf
     else:
         P_ = adapt_PSF(psf, B, (N,M), threshold=psf_thresh)
+    # Add garbage collectors
+    gc = garbage_collectors
+    if hasattr(peaks, 'tolist'):
+        _peaks = peaks.tolist()
+    else:
+        _peaks = peaks.copy()
+    _peaks = _peaks + [None] * gc
     logger.debug("Shape: {0}".format((N,M)))
 
     # init matrices
-    A = init_A(B, K, img=_img, peaks=peaks)
-    S = init_S(N, M, K, img=_img, peaks=peaks)
-    Tx, Ty, Gamma = translate_psfs((N,M), peaks, B, P_, threshold=1e-8)
+    A = init_A(B, K+gc, img=_img, peaks=_peaks)
+    S = init_S(N, M, K+gc, img=_img, peaks=_peaks)
+    Tx, Ty, Gamma = translate_psfs((N,M), _peaks, B, P_, threshold=1e-8)
 
     # constraints on S: non-negativity or L0/L1 sparsity plus ...
     if prox_S is None:
@@ -383,9 +394,9 @@ def deblend(img,
         seeks = {} # component k seeks constraint[c]
         if isinstance(constraints, basestring):
             for c in constraints:
-                seeks[c] = [True] * K
+                seeks[c] = [True] * K + [False] * gc
         else:
-            assert hasattr(constraints, '__iter__') and len(constraints) == K
+            assert hasattr(constraints, '__iter__') and len(constraints) == K + gc
             for i in range(K):
                 if constraints[i] is not None:
                     for c in constraints[i]:
@@ -447,6 +458,6 @@ def deblend(img,
 
     # create the model and reshape to have shape B,N,M
     model = get_model(A, S, Tx, Ty, P_, (N,M))
-    S = S.reshape(K,N,M)
+    S = S.reshape(K+gc,N,M)
 
     return A, S, model, P_, Tx, Ty, tr

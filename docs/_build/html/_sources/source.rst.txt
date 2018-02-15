@@ -1,0 +1,14 @@
+Sources
+=======
+
+.. _scarlet.source:
+
+`scarlet.source`_ provides classes for creating :class:`~scarlet.source.Source` objects, which represent models for individual astrophysical sources.
+Typically a new source class inherits from the base :class:`~scarlet.source.Source` class with a specific set of constraints (see :class:`~scarlet.constraint.Constraint`) and an initialization function.
+For example, and :class:`~scarlet.source.ExtendedSource` is a :class:`Source` initialized to be monotonic and symmetric,
+although an alternative :class:`~scarlet.constraints.Constraint` can be specified.
+
+Reference/API
+-------------
+.. automodule:: scarlet.source
+    :members:

@@ -1,0 +1,395 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Proximal Operators (scarlet.operators) &mdash; scarlet  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="scarlet  documentation" href="index.html"/>
+        <link rel="up" title="User Documentation" href="user_docs.html"/>
+        <link rel="next" title="PSF Matching (scarlet.psf_match)" href="psf_match.html"/>
+        <link rel="prev" title="Constraints (scarlet.constraints)" href="constraints.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> scarlet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_docs.html">User Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="blend.html">Blends (<code class="docutils literal"><span class="pre">scarlet.blend</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source.html">Sources (<code class="docutils literal"><span class="pre">scarlet.sources</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constraints.html">Constraints (<code class="docutils literal"><span class="pre">scarlet.constraints</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Proximal Operators (<code class="docutils literal"><span class="pre">scarlet.operators</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Reference/API">Reference/API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="psf_match.html">PSF Matching (<code class="docutils literal"><span class="pre">scarlet.psf_match</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="display.html">Visualization (<code class="docutils literal"><span class="pre">scarlet.display</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">scarlet</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="user_docs.html">User Documentation</a> &raquo;</li>
+        
+      <li>Proximal Operators (<code class="docutils literal"><span class="pre">scarlet.operators</span></code>)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/operators.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+/* nice headers on first paragraph of info/warning boxes */
+.admonition .first {
+    margin: -12px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    color: #fff;
+    line-height: 1;
+    display: block;
+}
+.admonition.warning .first {
+    background: #f0b37e;
+}
+.admonition.note .first {
+    background: #6ab0de;
+}
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="Proximal-Operators-(scarlet.operators)">
+<h1>Proximal Operators (<a class="reference internal" href="#"><span class="doc">scarlet.operators</span></a>)<a class="headerlink" href="#Proximal-Operators-(scarlet.operators)" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Reference/API">
+<h2>Reference/API<a class="headerlink" href="#Reference/API" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="scarlet.operators.find_Q">
+<code class="descclassname">scarlet.operators.</code><code class="descname">find_Q</code><span class="sig-paren">(</span><em>Vs</em>, <em>n</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/operators.html#find_Q"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.operators.find_Q" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds a Q that is within the solution space that can act as an appropriate target
+(could be rigorously constructed later)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.operators.find_relevant_dim">
+<code class="descclassname">scarlet.operators.</code><code class="descname">find_relevant_dim</code><span class="sig-paren">(</span><em>Y</em>, <em>Q</em>, <em>Vs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/operators.html#find_relevant_dim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.operators.find_relevant_dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds a dimension relevant to the problem by ‘raycasting’ from Y to Q</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.operators.proj">
+<code class="descclassname">scarlet.operators.</code><code class="descname">proj</code><span class="sig-paren">(</span><em>A</em>, <em>B</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/operators.html#proj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.operators.proj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the projection of A onto the hyper-plane defined by B</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.operators.proj_dist">
+<code class="descclassname">scarlet.operators.</code><code class="descname">proj_dist</code><span class="sig-paren">(</span><em>A</em>, <em>B</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/operators.html#proj_dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.operators.proj_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns length of projection of A onto B</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.operators.project_disk_sed">
+<code class="descclassname">scarlet.operators.</code><code class="descname">project_disk_sed</code><span class="sig-paren">(</span><em>bulge_sed</em>, <em>disk_sed</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/operators.html#project_disk_sed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.operators.project_disk_sed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Project the disk SED onto the space where it is bluer</p>
+<p>For the majority of observed galaxies, it appears that
+the difference between the bulge and the disk SEDs is
+roughly monotonic, making the disk bluer.</p>
+<p>This projection operator projects colors that are redder onto
+the same difference in color as the previous wavelength,
+similar to the way monotonicity works for the morphological
+<cite>S</cite> matrix of the model.</p>
+<p>While a single iteration of this model is unlikely to yield
+results that are as good as those in <cite>project_disk_sed_mean</cite>,
+after many iterations it is expected to converge to a better value.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.operators.project_disk_sed_mean">
+<code class="descclassname">scarlet.operators.</code><code class="descname">project_disk_sed_mean</code><span class="sig-paren">(</span><em>bulge_sed</em>, <em>disk_sed</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/operators.html#project_disk_sed_mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.operators.project_disk_sed_mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Project the disk SED onto the space where it is bluer</p>
+<p>For the majority of observed galaxies, it appears that
+the difference between the bulge and the disk SEDs is
+roughly monotonic, making the disk bluer.</p>
+<p>This projection operator projects colors that are redder
+than other colors onto the average SED difference for
+that wavelength. This is a more accurate SED than
+<cite>project_disk_sed</cite> but is more likely to create
+discontinuities in the evaluation of A, and should
+probably be avoided. It is being kept for now to record
+its effect.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.operators.prox_cone">
+<code class="descclassname">scarlet.operators.</code><code class="descname">prox_cone</code><span class="sig-paren">(</span><em>X</em>, <em>step</em>, <em>G=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/operators.html#prox_cone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.operators.prox_cone" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exact projection of components of X onto cone defined by Gx &gt;= 0</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.operators.prox_strict_monotonic">
+<code class="descclassname">scarlet.operators.</code><code class="descname">prox_strict_monotonic</code><span class="sig-paren">(</span><em>shape</em>, <em>use_nearest=False</em>, <em>thresh=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/operators.html#prox_strict_monotonic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.operators.prox_strict_monotonic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the prox_monotonic operator</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.operators.proximal_disk_sed">
+<code class="descclassname">scarlet.operators.</code><code class="descname">proximal_disk_sed</code><span class="sig-paren">(</span><em>X</em>, <em>step</em>, <em>peaks</em>, <em>algorithm=&lt;function project_disk_sed_mean&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/operators.html#proximal_disk_sed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.operators.proximal_disk_sed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensure that each disk SED is bluer than the bulge SED</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.operators.sort_by_radius">
+<code class="descclassname">scarlet.operators.</code><code class="descname">sort_by_radius</code><span class="sig-paren">(</span><em>shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/operators.html#sort_by_radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.operators.sort_by_radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sort indices distance from the center</p>
+<p>Given a shape, calculate the distance of each
+pixel from the center and return the indices
+of each pixel, sorted by radial distance from
+the center.</p>
+<dl class="docutils">
+<dt>shape: tuple</dt>
+<dd>Shape (y,x) of the source frame.</dd>
+</dl>
+<dl class="docutils">
+<dt>didx: <cite>~numpy.array</cite></dt>
+<dd>Indices of elements in an image with shape <cite>shape</cite>,
+sorted by distance from the center.</dd>
+<dt>ref_idx: <cite>~numpy.array</cite></dt>
+<dd>Indices of the element in the image closest to the
+center for each pixel in didx.</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.operators.strict_monotonicity">
+<code class="descclassname">scarlet.operators.</code><code class="descname">strict_monotonicity</code><span class="sig-paren">(</span><em>images</em>, <em>peaks=None</em>, <em>components=None</em>, <em>l0_thresh=None</em>, <em>l1_thresh=None</em>, <em>constraints=’m’</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/operators.html#strict_monotonicity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.operators.strict_monotonicity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use monotonicity as a strict proximal operator</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.operators.use_relevant_dim">
+<code class="descclassname">scarlet.operators.</code><code class="descname">use_relevant_dim</code><span class="sig-paren">(</span><em>Y</em>, <em>Q</em>, <em>Vs</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/operators.html#use_relevant_dim"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.operators.use_relevant_dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Uses relevant dimension to reduce problem dimensionality (projects everything onto the
+new hyperplane</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="psf_match.html" class="btn btn-neutral float-right" title="PSF Matching (scarlet.psf_match)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="constraints.html" class="btn btn-neutral" title="Constraints (scarlet.constraints)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Fred Moolekamp and Peter Melchior.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

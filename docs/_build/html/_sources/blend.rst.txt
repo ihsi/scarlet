@@ -1,0 +1,11 @@
+Blends
+======
+
+.. _scarlet.blend:
+
+`scarlet.blend`_ contains the :class:`scarlet.blend.Blend` class, the blended scene interpreted by the deblender.
+
+Reference/API
+-------------
+.. automodule:: scarlet.blend
+    :members:

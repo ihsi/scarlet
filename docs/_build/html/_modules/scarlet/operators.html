@@ -1,0 +1,464 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scarlet.operators &mdash; scarlet  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="scarlet  documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> scarlet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_docs.html">User Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">scarlet</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>scarlet.operators</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for scarlet.operators</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">proxmin</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;scarlet.operators&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_prox_strict_monotonic</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">ref_idx</span><span class="p">,</span> <span class="n">dist_idx</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Force an intensity profile to be monotonic</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">operators_pybind11</span>
+    <span class="n">operators_pybind11</span><span class="o">.</span><span class="n">prox_monotonic</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">ref_idx</span><span class="p">,</span> <span class="n">dist_idx</span><span class="p">,</span> <span class="n">thresh</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span>
+
+<span class="k">def</span> <span class="nf">_prox_weighted_monotonic</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">didx</span><span class="p">,</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">operators_pybind11</span>
+    <span class="n">operators_pybind11</span><span class="o">.</span><span class="n">prox_weighted_monotonic</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">offsets</span><span class="p">,</span> <span class="n">didx</span><span class="p">,</span> <span class="n">thresh</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span>
+
+<div class="viewcode-block" id="sort_by_radius"><a class="viewcode-back" href="../../operators.html#scarlet.operators.sort_by_radius">[docs]</a><span class="k">def</span> <span class="nf">sort_by_radius</span><span class="p">(</span><span class="n">shape</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sort indices distance from the center</span>
+
+<span class="sd">    Given a shape, calculate the distance of each</span>
+<span class="sd">    pixel from the center and return the indices</span>
+<span class="sd">    of each pixel, sorted by radial distance from</span>
+<span class="sd">    the center.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    shape: tuple</span>
+<span class="sd">        Shape (y,x) of the source frame.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    didx: `~numpy.array`</span>
+<span class="sd">        Indices of elements in an image with shape `shape`,</span>
+<span class="sd">        sorted by distance from the center.</span>
+<span class="sd">    ref_idx: `~numpy.array`</span>
+<span class="sd">        Indices of the element in the image closest to the</span>
+<span class="sd">        center for each pixel in didx.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Get the center pixels</span>
+    <span class="n">cx</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
+    <span class="n">cy</span> <span class="o">=</span> <span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span>
+    <span class="c1"># Calculate the distance between each pixel and the peak</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">X</span><span class="p">,</span><span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">X</span> <span class="o">-</span> <span class="n">cx</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">Y</span> <span class="o">-</span> <span class="n">cy</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">X</span><span class="o">**</span><span class="mi">2</span><span class="o">+</span><span class="n">Y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="c1"># Get the indices of the pixels sorted by distance from the peak</span>
+    <span class="n">didx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">distance</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">didx</span></div>
+
+<div class="viewcode-block" id="prox_strict_monotonic"><a class="viewcode-back" href="../../operators.html#scarlet.operators.prox_strict_monotonic">[docs]</a><span class="k">def</span> <span class="nf">prox_strict_monotonic</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">use_nearest</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Build the prox_monotonic operator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">transformations</span>
+
+    <span class="n">height</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="n">shape</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">height</span> <span class="o">%</span> <span class="mi">2</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">width</span> <span class="o">%</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="s2">&quot;Shape must have an odd width and height, received shape </span><span class="si">{0}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+    <span class="n">didx</span> <span class="o">=</span> <span class="n">sort_by_radius</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">use_nearest</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">sparse</span>
+        <span class="n">monotonicOp</span> <span class="o">=</span> <span class="n">transformations</span><span class="o">.</span><span class="n">getRadialMonotonicOp</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">useNearest</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">x_idx</span><span class="p">,</span> <span class="n">ref_idx</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">monotonicOp</span><span class="o">==</span><span class="mi">1</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">ref_idx</span> <span class="o">=</span> <span class="n">ref_idx</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">x_idx</span><span class="p">)]</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">_prox_strict_monotonic</span><span class="p">,</span> <span class="n">ref_idx</span><span class="o">=</span><span class="n">ref_idx</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                         <span class="n">dist_idx</span><span class="o">=</span><span class="n">didx</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">thresh</span><span class="o">=</span><span class="n">thresh</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">width</span><span class="o">*</span><span class="n">y</span><span class="o">+</span><span class="n">x</span> <span class="k">for</span> <span class="n">y</span><span class="p">,</span><span class="n">x</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">])</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">transformations</span><span class="o">.</span><span class="n">getRadialMonotonicWeights</span><span class="p">(</span><span class="n">shape</span><span class="p">,</span> <span class="n">useNearest</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">_prox_weighted_monotonic</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">didx</span><span class="o">=</span><span class="n">didx</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">offsets</span><span class="o">=</span><span class="n">offsets</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="n">thresh</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="prox_cone"><a class="viewcode-back" href="../../operators.html#scarlet.operators.prox_cone">[docs]</a><span class="k">def</span> <span class="nf">prox_cone</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">G</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exact projection of components of X onto cone defined by Gx &gt;= 0&quot;&quot;&quot;</span>
+    <span class="n">k</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="c1"># Creating set of half-space defining vectors</span>
+        <span class="n">Vs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+            <span class="n">add</span> <span class="o">=</span> <span class="n">G</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+            <span class="n">Vs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">add</span><span class="p">)</span>
+        <span class="n">Q</span> <span class="o">=</span> <span class="n">find_Q</span><span class="p">(</span><span class="n">Vs</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="c1"># Finding and using relevant dimensions until a point on the cone is found</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">find_relevant_dim</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Vs</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">Y</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Vs</span> <span class="o">=</span> <span class="n">use_relevant_dim</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Vs</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Y</span>
+    <span class="k">return</span> <span class="n">X</span></div>
+
+<span class="k">def</span> <span class="nf">prox_center_on</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">tiny</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">):</span>
+    <span class="c1"># make sure that the center pixel as at least some amount of flux</span>
+    <span class="c1"># otherwise centering will go off rails</span>
+    <span class="n">center_pix</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">size</span> <span class="o">//</span> <span class="mi">2</span> <span class="c1"># only works for odd pixel numbers in x and y</span>
+    <span class="n">X</span><span class="p">[</span><span class="n">center_pix</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">center_pix</span><span class="p">],</span> <span class="n">tiny</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span>
+
+<div class="viewcode-block" id="proj"><a class="viewcode-back" href="../../operators.html#scarlet.operators.proj">[docs]</a><span class="k">def</span> <span class="nf">proj</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the projection of A onto the hyper-plane defined by B&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">A</span> <span class="o">-</span> <span class="p">(</span><span class="n">A</span><span class="o">*</span><span class="n">B</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">*</span><span class="n">B</span><span class="o">/</span><span class="p">(</span><span class="n">B</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="proj_dist"><a class="viewcode-back" href="../../operators.html#scarlet.operators.proj_dist">[docs]</a><span class="k">def</span> <span class="nf">proj_dist</span><span class="p">(</span><span class="n">A</span><span class="p">,</span><span class="n">B</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns length of projection of A onto B&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">A</span><span class="o">*</span><span class="n">B</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">/</span><span class="p">(</span><span class="n">B</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">**</span><span class="mf">0.5</span></div>
+
+<div class="viewcode-block" id="use_relevant_dim"><a class="viewcode-back" href="../../operators.html#scarlet.operators.use_relevant_dim">[docs]</a><span class="k">def</span> <span class="nf">use_relevant_dim</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Vs</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Uses relevant dimension to reduce problem dimensionality (projects everything onto the</span>
+<span class="sd">    new hyperplane&quot;&quot;&quot;</span>
+    <span class="n">projector</span> <span class="o">=</span> <span class="n">Vs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+    <span class="k">del</span> <span class="n">Vs</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">proj</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">projector</span><span class="p">)</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">proj</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">projector</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Vs</span><span class="p">)):</span>
+        <span class="n">Vs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">proj</span><span class="p">(</span><span class="n">Vs</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">projector</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Y</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Vs</span></div>
+
+<div class="viewcode-block" id="find_relevant_dim"><a class="viewcode-back" href="../../operators.html#scarlet.operators.find_relevant_dim">[docs]</a><span class="k">def</span> <span class="nf">find_relevant_dim</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">Vs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Finds a dimension relevant to the problem by &#39;raycasting&#39; from Y to Q&quot;&quot;&quot;</span>
+    <span class="n">max_t</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Vs</span><span class="p">)):</span>
+        <span class="n">Y_p</span> <span class="o">=</span> <span class="n">proj_dist</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">Vs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">Q_p</span> <span class="o">=</span> <span class="n">proj_dist</span><span class="p">(</span><span class="n">Q</span><span class="p">,</span> <span class="n">Vs</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">Y_p</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="o">-</span><span class="n">Y_p</span><span class="o">/</span><span class="p">(</span><span class="n">Q_p</span> <span class="o">-</span> <span class="n">Y_p</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&gt;</span> <span class="n">max_t</span><span class="p">:</span>
+            <span class="n">max_t</span> <span class="o">=</span> <span class="n">t</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="k">return</span> <span class="n">index</span></div>
+
+<div class="viewcode-block" id="find_Q"><a class="viewcode-back" href="../../operators.html#scarlet.operators.find_Q">[docs]</a><span class="k">def</span> <span class="nf">find_Q</span><span class="p">(</span><span class="n">Vs</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Finds a Q that is within the solution space that can act as an appropriate target</span>
+<span class="sd">    (could be rigorously constructed later)&quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+    <span class="n">res</span><span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)]</span> <span class="o">=</span> <span class="n">n</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="strict_monotonicity"><a class="viewcode-back" href="../../operators.html#scarlet.operators.strict_monotonicity">[docs]</a><span class="k">def</span> <span class="nf">strict_monotonicity</span><span class="p">(</span><span class="n">images</span><span class="p">,</span> <span class="n">peaks</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">components</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l0_thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l1_thresh</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="s2">&quot;m&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Use monotonicity as a strict proximal operator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">proxmin</span>
+
+    <span class="k">if</span> <span class="n">components</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">component_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">peaks</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">component_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">components</span><span class="p">])</span>
+    <span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="n">images</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="k">if</span> <span class="n">l0_thresh</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">l1_thresh</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">prox_S</span> <span class="o">=</span> <span class="n">proxmin</span><span class="o">.</span><span class="n">operators</span><span class="o">.</span><span class="n">prox_plus</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># L0 has preference</span>
+        <span class="k">if</span> <span class="n">l0_thresh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">l1_thresh</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;l1_thresh ignored in favor of l0_thresh&quot;</span><span class="p">)</span>
+            <span class="n">prox_S</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">proxmin</span><span class="o">.</span><span class="n">operators</span><span class="o">.</span><span class="n">prox_hard</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="n">l0_thresh</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">prox_S</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">proxmin</span><span class="o">.</span><span class="n">operators</span><span class="o">.</span><span class="n">prox_soft_plus</span><span class="p">,</span> <span class="n">thresh</span><span class="o">=</span><span class="n">l1_thresh</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">constraints</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">constraints</span><span class="o">!=</span><span class="s2">&quot;m&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Monotonicity &#39;m&#39; is the only allowed strict constraint&quot;</span><span class="p">)</span>
+        <span class="n">seeks</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span><span class="p">]</span><span class="o">*</span><span class="n">component_count</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">seeks</span> <span class="o">=</span> <span class="p">[</span><span class="n">constraints</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">==</span><span class="s2">&quot;m&quot;</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">component_count</span><span class="p">)]</span>
+    <span class="n">prox_S</span> <span class="o">=</span> <span class="n">build_prox_monotonic</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="n">M</span><span class="p">),</span> <span class="n">seeks</span><span class="o">=</span><span class="n">seeks</span><span class="p">,</span> <span class="n">prox_chain</span><span class="o">=</span><span class="n">prox_S</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">prox_S</span></div>
+
+<div class="viewcode-block" id="project_disk_sed_mean"><a class="viewcode-back" href="../../operators.html#scarlet.operators.project_disk_sed_mean">[docs]</a><span class="k">def</span> <span class="nf">project_disk_sed_mean</span><span class="p">(</span><span class="n">bulge_sed</span><span class="p">,</span> <span class="n">disk_sed</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Project the disk SED onto the space where it is bluer</span>
+
+<span class="sd">    For the majority of observed galaxies, it appears that</span>
+<span class="sd">    the difference between the bulge and the disk SEDs is</span>
+<span class="sd">    roughly monotonic, making the disk bluer.</span>
+
+<span class="sd">    This projection operator projects colors that are redder</span>
+<span class="sd">    than other colors onto the average SED difference for</span>
+<span class="sd">    that wavelength. This is a more accurate SED than</span>
+<span class="sd">    `project_disk_sed` but is more likely to create</span>
+<span class="sd">    discontinuities in the evaluation of A, and should</span>
+<span class="sd">    probably be avoided. It is being kept for now to record</span>
+<span class="sd">    its effect.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_sed</span> <span class="o">=</span> <span class="n">disk_sed</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">bulge_sed</span> <span class="o">-</span> <span class="n">disk_sed</span>
+    <span class="n">slope</span> <span class="o">=</span> <span class="p">(</span><span class="n">diff</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">diff</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">/</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bulge_sed</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">diff</span><span class="p">[</span><span class="n">s</span><span class="p">]</span><span class="o">&lt;</span><span class="n">diff</span><span class="p">[</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">new_sed</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">bulge_sed</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">slope</span><span class="o">*</span><span class="n">s</span> <span class="o">+</span> <span class="n">diff</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">diff</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">bulge_sed</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">-</span> <span class="n">new_sed</span><span class="p">[</span><span class="n">s</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">new_sed</span></div>
+
+<div class="viewcode-block" id="project_disk_sed"><a class="viewcode-back" href="../../operators.html#scarlet.operators.project_disk_sed">[docs]</a><span class="k">def</span> <span class="nf">project_disk_sed</span><span class="p">(</span><span class="n">bulge_sed</span><span class="p">,</span> <span class="n">disk_sed</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Project the disk SED onto the space where it is bluer</span>
+
+<span class="sd">    For the majority of observed galaxies, it appears that</span>
+<span class="sd">    the difference between the bulge and the disk SEDs is</span>
+<span class="sd">    roughly monotonic, making the disk bluer.</span>
+
+<span class="sd">    This projection operator projects colors that are redder onto</span>
+<span class="sd">    the same difference in color as the previous wavelength,</span>
+<span class="sd">    similar to the way monotonicity works for the morphological</span>
+<span class="sd">    `S` matrix of the model.</span>
+
+<span class="sd">    While a single iteration of this model is unlikely to yield</span>
+<span class="sd">    results that are as good as those in `project_disk_sed_mean`,</span>
+<span class="sd">    after many iterations it is expected to converge to a better value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">new_sed</span> <span class="o">=</span> <span class="n">disk_sed</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">bulge_sed</span> <span class="o">-</span> <span class="n">disk_sed</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">diff</span><span class="p">[</span><span class="n">s</span><span class="p">]</span><span class="o">&lt;</span><span class="n">diff</span><span class="p">[</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">new_sed</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_sed</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">+</span> <span class="n">diff</span><span class="p">[</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">diff</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">diff</span><span class="p">[</span><span class="n">s</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">new_sed</span></div>
+
+<div class="viewcode-block" id="proximal_disk_sed"><a class="viewcode-back" href="../../operators.html#scarlet.operators.proximal_disk_sed">[docs]</a><span class="k">def</span> <span class="nf">proximal_disk_sed</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">peaks</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="n">project_disk_sed_mean</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ensure that each disk SED is bluer than the bulge SED</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">peak</span> <span class="ow">in</span> <span class="n">peaks</span><span class="o">.</span><span class="n">peaks</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;disk&quot;</span> <span class="ow">in</span> <span class="n">peak</span><span class="o">.</span><span class="n">components</span> <span class="ow">and</span> <span class="s2">&quot;bulge&quot;</span> <span class="ow">in</span> <span class="n">peak</span><span class="o">.</span><span class="n">components</span><span class="p">:</span>
+            <span class="n">bulge_k</span> <span class="o">=</span> <span class="n">peak</span><span class="p">[</span><span class="s2">&quot;bulge&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+            <span class="n">disk_k</span> <span class="o">=</span> <span class="n">peak</span><span class="p">[</span><span class="s2">&quot;disk&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+            <span class="n">X</span><span class="p">[:,</span><span class="n">disk_k</span><span class="p">]</span> <span class="o">=</span> <span class="n">algorithm</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span><span class="n">bulge_k</span><span class="p">],</span> <span class="n">X</span><span class="p">[:,</span><span class="n">disk_k</span><span class="p">])</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">proxmin</span><span class="o">.</span><span class="n">operators</span><span class="o">.</span><span class="n">prox_unity_plus</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Fred Moolekamp and Peter Melchior.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

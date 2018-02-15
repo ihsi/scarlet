@@ -1,0 +1,384 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Transformation Operators (scarlet.transformations) &mdash; scarlet  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="scarlet  documentation" href="index.html"/>
+        <link rel="up" title="User Documentation" href="user_docs.html"/>
+        <link rel="next" title="PSF Matching (scarlet.psf_match)" href="psf_match.html"/>
+        <link rel="prev" title="Proximal Operators (scarlet.operators)" href="operators.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> scarlet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_docs.html">User Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="blend.html">Blends (<code class="docutils literal"><span class="pre">scarlet.blend</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="source.html">Sources (<code class="docutils literal"><span class="pre">scarlet.sources</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="constraints.html">Constraints (<code class="docutils literal"><span class="pre">scarlet.constraints</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="operators.html">Proximal Operators (<code class="docutils literal"><span class="pre">scarlet.operators</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Transformation Operators (<code class="docutils literal"><span class="pre">scarlet.transformations</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Reference/API">Reference/API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="psf_match.html">PSF Matching (<code class="docutils literal"><span class="pre">scarlet.psf_match</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="display.html">Visualization (<code class="docutils literal"><span class="pre">scarlet.display</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">scarlet</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="user_docs.html">User Documentation</a> &raquo;</li>
+        
+      <li>Transformation Operators (<code class="docutils literal"><span class="pre">scarlet.transformations</span></code>)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/transformations.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+/* nice headers on first paragraph of info/warning boxes */
+.admonition .first {
+    margin: -12px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    color: #fff;
+    line-height: 1;
+    display: block;
+}
+.admonition.warning .first {
+    background: #f0b37e;
+}
+.admonition.note .first {
+    background: #6ab0de;
+}
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="Transformation-Operators-(scarlet.transformations)">
+<h1>Transformation Operators (<a class="reference internal" href="#"><span class="doc">scarlet.transformations</span></a>)<a class="headerlink" href="#Transformation-Operators-(scarlet.transformations)" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Reference/API">
+<h2>Reference/API<a class="headerlink" href="#Reference/API" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scarlet.transformations.GammaOp">
+<em class="property">class </em><code class="descclassname">scarlet.transformations.</code><code class="descname">GammaOp</code><span class="sig-paren">(</span><em>shape</em>, <em>psf=None</em>, <em>offset_int=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/transformations.html#GammaOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.transformations.GammaOp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combination of Linear (x,y) Transformation and PSF Convolution</p>
+<p>Since the translation operators and PSF convolution operators both act
+on the deconvolved, centered S matrix, we can instead think of the translation
+operators translating the PSF convolution kernel, making a single transformation
+Gamma = Ty.P.Tx, where Tx,Ty are the translation operators and P is the PSF
+convolution operator.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.transformations.diagonalizeArray">
+<code class="descclassname">scarlet.transformations.</code><code class="descname">diagonalizeArray</code><span class="sig-paren">(</span><em>arr</em>, <em>shape=None</em>, <em>dtype=&lt;class ‘numpy.float64’&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/transformations.html#diagonalizeArray"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.transformations.diagonalizeArray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert an array to a matrix that compares each pixel to its neighbors</p>
+<p>Given an array with length N, create an 8xN array, where each row will be a
+diagonal in a diagonalized array. Each column in this matrix is a row in the larger
+NxN matrix used for an operator, except that this 2D array only contains the values
+used to create the bands in the band diagonal matrix.</p>
+<p>Because the off-diagonal bands have less than N elements, <code class="docutils literal"><span class="pre">getOffsets</span></code> is used to
+create a mask that will set the elements of the array that are outside of the matrix to zero.</p>
+<p><code class="docutils literal"><span class="pre">arr</span></code> is the vector to diagonalize, for example the distance from each pixel to the peak,
+or the angle of the vector to the peak.</p>
+<p><code class="docutils literal"><span class="pre">shape</span></code> is the shape of the original image.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.transformations.diagonalsToSparse">
+<code class="descclassname">scarlet.transformations.</code><code class="descname">diagonalsToSparse</code><span class="sig-paren">(</span><em>diagonals</em>, <em>shape</em>, <em>dtype=&lt;class ‘numpy.float64’&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/transformations.html#diagonalsToSparse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.transformations.diagonalsToSparse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a diagonalized array into a sparse diagonal matrix</p>
+<p><code class="docutils literal"><span class="pre">diagonalizeArray</span></code> creates an 8xN array representing the bands that describe the
+interactions of a pixel with its neighbors. This function takes that 8xN array and converts
+it into a sparse diagonal matrix.</p>
+<p>See <cite>diagonalizeArray</cite> for the details of the 8xN array.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.transformations.getOffsets">
+<code class="descclassname">scarlet.transformations.</code><code class="descname">getOffsets</code><span class="sig-paren">(</span><em>width</em>, <em>coords=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/transformations.html#getOffsets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.transformations.getOffsets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the offset and slices for a sparse band diagonal array</p>
+<p>For an operator that interacts with its neighbors we want a band diagonal matrix,
+where each row describes the 8 pixels that are neighbors for the reference pixel
+(the diagonal). Regardless of the operator, these 8 bands are always the same,
+so we make a utility function that returns the offsets (passed to scipy.sparse.diags).</p>
+<p>See <cite>diagonalizeArray</cite> for more on the slices and format of the array used to create
+NxN operators that act on a data vector.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.transformations.getPSFOp">
+<code class="descclassname">scarlet.transformations.</code><code class="descname">getPSFOp</code><span class="sig-paren">(</span><em>psf</em>, <em>imgShape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/transformations.html#getPSFOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.transformations.getPSFOp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an operator to convolve intensities with the PSF</p>
+<p>Given a psf image <code class="docutils literal"><span class="pre">psf</span></code> and the shape of the blended image <code class="docutils literal"><span class="pre">imgShape</span></code>,
+make a banded matrix out of all non-zero pixels in <code class="docutils literal"><span class="pre">psfImg</span></code> that acts as
+the PSF operator.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.transformations.getRadialMonotonicOp">
+<code class="descclassname">scarlet.transformations.</code><code class="descname">getRadialMonotonicOp</code><span class="sig-paren">(</span><em>shape</em>, <em>useNearest=True</em>, <em>minGradient=1</em>, <em>subtract=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/transformations.html#getRadialMonotonicOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.transformations.getRadialMonotonicOp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an operator to constrain radial monotonicity</p>
+<p>This version of the radial monotonicity operator selects all of the pixels closer to the peak
+for each pixel and weights their flux based on their alignment with a vector from the pixel
+to the peak. In order to quickly create this using sparse matrices, its construction is a bit opaque.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.transformations.getRadialMonotonicWeights">
+<code class="descclassname">scarlet.transformations.</code><code class="descname">getRadialMonotonicWeights</code><span class="sig-paren">(</span><em>shape</em>, <em>useNearest=True</em>, <em>minGradient=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/transformations.html#getRadialMonotonicWeights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.transformations.getRadialMonotonicWeights" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create the weights used for the Radial Monotonicity Operator</p>
+<p>This version of the radial monotonicity operator selects all of the pixels closer to the peak
+for each pixel and weights their flux based on their alignment with a vector from the pixel
+to the peak. In order to quickly create this using sparse matrices, its construction is a bit opaque.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.transformations.getSpinOp">
+<code class="descclassname">scarlet.transformations.</code><code class="descname">getSpinOp</code><span class="sig-paren">(</span><em>ms</em>, <em>shape</em>, <em>thickness=4</em>, <em>peak=None</em>, <em>oversampling=21</em>, <em>radial_fct=&lt;function &lt;lambda&gt;&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/transformations.html#getSpinOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.transformations.getSpinOp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spin decomposition operator.</p>
+<p>The operator maps onto a basis function of R(r) exp(i m phi), where phi is
+the polar angle wrt to the peak (or, if None, the center of the image).</p>
+<p>The decomposition is performed in a set of concentric rings of fixed thickness.</p>
+<p>ms is a list of integers that indicate the requested spin numbers.
+thickness is the radial separation between the inner and outer ring radius.
+peak is (an optional) offset of the object from the image center.
+oversampling determine the higher-resolution grid for the in-pixel
+integration; it must be odd.
+radial_fct is the radial part of the spin basis function.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.transformations.getSymmetryOp">
+<code class="descclassname">scarlet.transformations.</code><code class="descname">getSymmetryOp</code><span class="sig-paren">(</span><em>shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/transformations.html#getSymmetryOp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.transformations.getSymmetryOp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a linear operator to symmetrize an image</p>
+<p>Given the <code class="docutils literal"><span class="pre">shape</span></code> of an image, create a linear operator that
+acts on the flattened image to return its symmetric version.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="psf_match.html" class="btn btn-neutral float-right" title="PSF Matching (scarlet.psf_match)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="operators.html" class="btn btn-neutral" title="Proximal Operators (scarlet.operators)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Fred Moolekamp and Peter Melchior.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

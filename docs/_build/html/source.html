@@ -1,0 +1,910 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Sources (scarlet.sources) &mdash; scarlet  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="scarlet  documentation" href="index.html"/>
+        <link rel="up" title="User Documentation" href="user_docs.html"/>
+        <link rel="next" title="Constraints (scarlet.constraints)" href="constraints.html"/>
+        <link rel="prev" title="Blends (scarlet.blend)" href="blend.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> scarlet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user_docs.html">User Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="blend.html">Blends (<code class="docutils literal"><span class="pre">scarlet.blend</span></code>)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Sources (<code class="docutils literal"><span class="pre">scarlet.sources</span></code>)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Introduction">Introduction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#The-examples-below-require-the-test-data-to-be-loaded">The examples below require the test data to be loaded</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Getting-Started">Getting Started</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ExtendedSource">ExtendedSource</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#PointSource">PointSource</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Custom-Sources">Custom Sources</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Reference/API">Reference/API</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="constraints.html">Constraints (<code class="docutils literal"><span class="pre">scarlet.constraints</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="operators.html">Proximal Operators (<code class="docutils literal"><span class="pre">scarlet.operators</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transformations.html">Transformation Operators (<code class="docutils literal"><span class="pre">scarlet.transformations</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="psf_match.html">PSF Matching (<code class="docutils literal"><span class="pre">scarlet.psf_match</span></code>)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="display.html">Visualization (<code class="docutils literal"><span class="pre">scarlet.display</span></code>)</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">scarlet</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="user_docs.html">User Documentation</a> &raquo;</li>
+        
+      <li>Sources (<code class="docutils literal"><span class="pre">scarlet.sources</span></code>)</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/source.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #303F9F;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #D84315;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 8ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #cfcfcf;
+    border-radius: 2px;
+    background: #f7f7f7;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.pngmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+/* nice headers on first paragraph of info/warning boxes */
+.admonition .first {
+    margin: -12px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    color: #fff;
+    line-height: 1;
+    display: block;
+}
+.admonition.warning .first {
+    background: #f0b37e;
+}
+.admonition.note .first {
+    background: #6ab0de;
+}
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="Sources-(scarlet.sources)">
+<h1>Sources (<a class="reference internal" href="#"><span class="doc">scarlet.sources</span></a>)<a class="headerlink" href="#Sources-(scarlet.sources)" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Introduction">
+<h2>Introduction<a class="headerlink" href="#Introduction" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#"><span class="doc">scarlet.source</span></a> provides classes for creating
+<a class="reference internal" href="#scarlet.source.Source"><span class="std std-ref">Source</span></a> objects, which represent
+models for individual astrophysical sources. A
+<a class="reference internal" href="#scarlet.source.Source"><span class="std std-ref">Source</span></a> is a source in a blend
+which is usually a single component (a morphology and a single SED) but
+can also be made up of multiple components, each with it’s own SED and
+morphology.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last"><a class="reference external" href="http://www.astropy.org">astropy</a> and <a class="reference external" href="https://matplotlib.org">matplotlib</a> are required for the following examples</p>
+</div>
+<div class="section" id="The-examples-below-require-the-test-data-to-be-loaded">
+<h3>The examples below require the test data to be loaded<a class="headerlink" href="#The-examples-below-require-the-test-data-to-be-loaded" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">scarlet</span>
+<span class="kn">import</span> <span class="nn">scarlet.display</span>
+
+<span class="c1"># Load the sample images</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;../data/test_sim/data.npz&quot;</span><span class="p">)</span>
+<span class="n">images</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;images&quot;</span><span class="p">]</span>
+<span class="n">filters</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;filters&quot;</span><span class="p">]</span>
+
+<span class="c1"># Load the detection catalog</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="kn">import</span> <span class="n">Table</span> <span class="k">as</span> <span class="n">ApTable</span>
+<span class="n">catalog</span> <span class="o">=</span> <span class="n">ApTable</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;../data/test_sim/true_catalog.fits&quot;</span><span class="p">)</span>
+<span class="n">bg_rms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">20</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">images</span><span class="p">))</span>
+
+<span class="n">asinh</span> <span class="o">=</span> <span class="n">scarlet</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">Asinh</span><span class="p">(</span><span class="n">img</span><span class="o">=</span><span class="n">images</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="Getting-Started">
+<h2>Getting Started<a class="headerlink" href="#Getting-Started" title="Permalink to this headline">¶</a></h2>
+<p>Typically a new source class inherits from the
+<a class="reference internal" href="#scarlet.source.Source"><span class="std std-ref">Source</span></a> base class with a
+specific set of constraints (see <a class="reference internal" href="constraints.html"><span class="doc">constraints</span></a> and
+an initialization function.</p>
+<div class="section" id="ExtendedSource">
+<h3>ExtendedSource<a class="headerlink" href="#ExtendedSource" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference internal" href="#scarlet.source.ExtendedSource"><span class="std std-ref">ExtendedSource</span></a> is a
+<a class="reference internal" href="#scarlet.source.Source"><span class="std std-ref">Source</span></a> that can be initialized
+to be symmetric and/or monotonoically decreasing in flux from the pixel
+at the center of the source.</p>
+<p>For example:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="c1"># Initialize the sources</span>
+<span class="n">sources</span> <span class="o">=</span> <span class="p">[</span><span class="n">scarlet</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">ExtendedSource</span><span class="p">((</span><span class="n">src</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">],</span><span class="n">src</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]),</span> <span class="n">images</span><span class="p">,</span> <span class="n">bg_rms</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">catalog</span><span class="p">]</span>
+
+<span class="c1"># Display the sources</span>
+<span class="k">def</span> <span class="nf">display_sources</span><span class="p">(</span><span class="n">sources</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">]):</span>
+    <span class="c1"># Only show a few of the peaks, for illustrative purposes</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">:</span>
+        <span class="c1"># Load the initial source model</span>
+        <span class="n">src</span> <span class="o">=</span> <span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">get_model</span><span class="p">()</span>
+        <span class="c1"># Convert the model to an RGB image</span>
+        <span class="n">rgb</span> <span class="o">=</span> <span class="n">scarlet</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">img_to_rgb</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">filter_indices</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">norm</span><span class="o">=</span><span class="n">asinh</span><span class="p">)</span>
+        <span class="c1"># Select the image patch the overlaps with the source and convert it to an RGB image</span>
+        <span class="n">_rgb</span> <span class="o">=</span> <span class="n">scarlet</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">img_to_rgb</span><span class="p">(</span><span class="n">images</span><span class="p">[</span><span class="n">src</span><span class="o">.</span><span class="n">bb</span><span class="p">],</span> <span class="n">filter_indices</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">norm</span><span class="o">=</span><span class="n">asinh</span><span class="p">)</span>
+        <span class="c1"># Display the image and model</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="p">[</span><span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">_rgb</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Data&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">rgb</span><span class="p">)</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Initial Model&quot;</span><span class="p">)</span>
+        <span class="c1"># Mark the current source in the image</span>
+        <span class="n">y</span><span class="p">,</span><span class="n">x</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">center</span>
+        <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">src</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">y</span><span class="o">-</span><span class="n">src</span><span class="o">.</span><span class="n">bb</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="s1">&#39;wx&#39;</span><span class="p">,</span> <span class="n">mew</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">display_sources</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/source_6_0.png" src="_images/source_6_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/source_6_1.png" src="_images/source_6_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/source_6_2.png" src="_images/source_6_2.png" />
+</div>
+</div>
+<p>By default, an
+<a class="reference internal" href="#scarlet.source.ExtendedSource"><span class="std std-ref">ExtendedSource</span></a> is
+constrained to be both symmetric and strictly monotonic but can be
+initialized with an constraint.</p>
+<p>For example, we can initialize an extended source with no symmetry
+constraint but include an L0 (sparsity) penalty, however additional
+constraints (like sparsity) are only included during fitting, not in the
+initial model.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">scarlet.constraints</span> <span class="kn">as</span> <span class="nn">sc</span>
+<span class="c1"># Notice that symmetry is turned off</span>
+<span class="n">constraints</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">SimpleConstraint</span><span class="p">()</span> <span class="o">&amp;</span> <span class="c1"># Normalize SED to unity</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">DirectMonotonicityConstraint</span><span class="p">(</span><span class="n">use_nearest</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span> <span class="o">&amp;</span> <span class="c1"># Weighted strict monotonicity</span>
+    <span class="n">sc</span><span class="o">.</span><span class="n">L0Constraint</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span> <span class="c1"># L0 norm</span>
+<span class="p">)</span>
+<span class="n">sources</span> <span class="o">=</span> <span class="p">[</span><span class="n">scarlet</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">ExtendedSource</span><span class="p">((</span><span class="n">src</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">],</span><span class="n">src</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]),</span> <span class="n">images</span><span class="p">,</span> <span class="n">bg_rms</span><span class="p">,</span> <span class="n">symmetric</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">catalog</span><span class="p">]</span>
+<span class="n">display_sources</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/source_8_0.png" src="_images/source_8_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/source_8_1.png" src="_images/source_8_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/source_8_2.png" src="_images/source_8_2.png" />
+</div>
+</div>
+<p>See <a class="reference internal" href="constraints.html"><span class="doc">constraints</span></a> for more on constraints</p>
+</div>
+<div class="section" id="PointSource">
+<h3>PointSource<a class="headerlink" href="#PointSource" title="Permalink to this headline">¶</a></h3>
+<p>We can also initialize a source as a simple
+<a class="reference internal" href="#scarlet.source.PointSource"><span class="std std-ref">PointSource</span></a>, which
+initializes each source with the SED (normalized to unity) at the
+location of the peak and the morphology of only a few pixels around the
+central (peak) pixel. Point sources also require a minimum shape to
+intialize the source with, although the size of the box is allowed to
+grow (see <a class="reference internal" href="blend.html"><span class="doc">scarlet.blend</span></a> for more on box sizing).</p>
+<p>For example:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="n">sources</span> <span class="o">=</span> <span class="p">[</span><span class="n">scarlet</span><span class="o">.</span><span class="n">source</span><span class="o">.</span><span class="n">PointSource</span><span class="p">((</span><span class="n">src</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">],</span><span class="n">src</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]),</span> <span class="n">images</span><span class="p">,</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">15</span><span class="p">))</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">catalog</span><span class="p">]</span>
+<span class="n">display_sources</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/source_11_0.png" src="_images/source_11_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/source_11_1.png" src="_images/source_11_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="_images/source_11_2.png" src="_images/source_11_2.png" />
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="Custom-Sources">
+<h2>Custom Sources<a class="headerlink" href="#Custom-Sources" title="Permalink to this headline">¶</a></h2>
+<p>It may also be advantageous to create your own custom source
+initializations and constraints. For example, grand design spirals are
+neither monotonic nor symmetric and require less restrictive (or at the
+very least different) constraints.</p>
+<p>To create your own source class you can just inherit from
+<a class="reference internal" href="#scarlet.source.Source"><span class="std std-ref">Source</span></a>, for example:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span><span class="k">class</span> <span class="nc">MySource</span><span class="p">(</span><span class="n">scarlet</span><span class="o">.</span><span class="n">Source</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># determine the initial sed and morphology, center, constraints</span>
+        <span class="c1"># then construct the source, e.g:</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MySource</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">sed</span><span class="p">,</span> <span class="n">morph</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">,</span>
+                                       <span class="n">psf</span><span class="o">=</span><span class="n">psf</span><span class="p">,</span> <span class="n">fix_sed</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fix_morph</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fix_frame</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">shift_center</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="Reference/API">
+<h2>Reference/API<a class="headerlink" href="#Reference/API" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scarlet.source.ExtendedSource">
+<em class="property">class </em><code class="descclassname">scarlet.source.</code><code class="descname">ExtendedSource</code><span class="sig-paren">(</span><em>center</em>, <em>img</em>, <em>bg_rms</em>, <em>constraints=None</em>, <em>psf=None</em>, <em>symmetric=True</em>, <em>monotonic=True</em>, <em>thresh=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#ExtendedSource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.ExtendedSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an extended source</p>
+<p>Extended sources are initialized to have flux that are (optionally) symmetric and
+monotonically decreasing from the peak pixel,
+contained in the minimal box necessary to enclose all of the initial flux.
+By default the model for the source will continue to be monotonic and symmetric,
+but other <cite>constraints</cite> can be used.</p>
+<dl class="method">
+<dt id="scarlet.source.ExtendedSource.make_initial">
+<code class="descname">make_initial</code><span class="sig-paren">(</span><em>img</em>, <em>bg_rms</em>, <em>thresh=1.0</em>, <em>symmetric=True</em>, <em>monotonic=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#ExtendedSource.make_initial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.ExtendedSource.make_initial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the source that is symmetric and monotonic</p>
+<dl class="docutils">
+<dt>source: <a class="reference internal" href="#scarlet.source.Source" title="scarlet.source.Source"><code class="xref py py-class docutils literal"><span class="pre">Source</span></code></a></dt>
+<dd><cite>Source</cite> to initialize.</dd>
+<dt>img: <code class="xref py py-class docutils literal"><span class="pre">array</span></code></dt>
+<dd>(Bands, Height, Width) data array that contains a 2D image for each band</dd>
+<dt>bg_rms: array_like</dt>
+<dd>RMS value of the background in each band. This should have the same shape as <cite>img</cite>.</dd>
+<dt>symmetric: <cite>bool</cite></dt>
+<dd>Whether or not to make the initial morphology symmetric about the peak.</dd>
+<dt>monotonic: <cite>bool</cite></dt>
+<dd>Whether or not to make the initial morphology monotonically decreasing from the peak.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scarlet.source.PointSource">
+<em class="property">class </em><code class="descclassname">scarlet.source.</code><code class="descname">PointSource</code><span class="sig-paren">(</span><em>center</em>, <em>img</em>, <em>shape</em>, <em>constraints=None</em>, <em>psf=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#PointSource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.PointSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a point source</p>
+<p><cite>~scarlet.source.PointSource</cite> objects are initialized with the SED of the peak pixel,
+and the morphology of a single pixel (the peak) turned on.
+While a <cite>~scarlet.source.PointSource</cite> can have any <cite>constraints</cite>, the default constraints are
+symmetry and monotonicity.</p>
+<dl class="method">
+<dt id="scarlet.source.PointSource.make_initial">
+<code class="descname">make_initial</code><span class="sig-paren">(</span><em>img</em>, <em>shape</em>, <em>tiny=1e-10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#PointSource.make_initial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.PointSource.make_initial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the source using only the peak pixel</p>
+<dl class="docutils">
+<dt>source: <cite>~scarlet.source.Source</cite></dt>
+<dd><cite>Source</cite> to initialize.</dd>
+<dt>img: <cite>~numpy.array</cite></dt>
+<dd>(Bands, Height, Width) data array that contains a 2D image for each band</dd>
+</dl>
+<p>This implementation initializes the sed from the pixel in
+the center of the frame and sets morphology to only comprise that pixel,
+which works well for point sources and poorly resolved galaxies.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scarlet.source.Source">
+<em class="property">class </em><code class="descclassname">scarlet.source.</code><code class="descname">Source</code><span class="sig-paren">(</span><em>sed</em>, <em>morph_image</em>, <em>constraints=None</em>, <em>center=None</em>, <em>psf=None</em>, <em>fix_sed=False</em>, <em>fix_morph=False</em>, <em>fix_frame=False</em>, <em>shift_center=0.2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source" title="Permalink to this definition">¶</a></dt>
+<dd><p>A single source in a blend</p>
+<dl class="attribute">
+<dt id="scarlet.source.Source.Nx">
+<code class="descname">Nx</code><a class="headerlink" href="#scarlet.source.Source.Nx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Width of the frame</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scarlet.source.Source.Ny">
+<code class="descname">Ny</code><a class="headerlink" href="#scarlet.source.Source.Ny" title="Permalink to this definition">¶</a></dt>
+<dd><p>Height of the frame</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scarlet.source.Source.center_int">
+<code class="descname">center_int</code><a class="headerlink" href="#scarlet.source.Source.center_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rounded (not truncated) integer pixel position of the center</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scarlet.source.Source.get_model">
+<code class="descname">get_model</code><span class="sig-paren">(</span><em>combine=True</em>, <em>Gamma=None</em>, <em>use_sed=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source.get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source.get_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the model of all components for the current source</p>
+<dl class="docutils">
+<dt>combine: bool, default=`True`</dt>
+<dd>Whether or not to combine all of the components into a single model</dd>
+<dt>Gamma: <cite>~scarlet.transformations.GammaOp</cite>, default=`None`</dt>
+<dd>Gamma transformation to convolve with PSF and perform linear transform.
+If <cite>Gamma</cite> is <cite>None</cite> then <cite>self.Gamma</cite> is used.</dd>
+<dt>use_sed: bool, default=`True`</dt>
+<dd>Whether to use the SED to create a multi-color model or model of just the morphology</dd>
+</dl>
+<dl class="docutils">
+<dt>model: <cite>~numpy.array</cite></dt>
+<dd>(Bands, Height, Width) image of the model</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="scarlet.source.Source.get_morph_error">
+<code class="descname">get_morph_error</code><span class="sig-paren">(</span><em>weights</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source.get_morph_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source.get_morph_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get error in the morphology</p>
+<p>This error estimate uses linear error propagation and assumes that the
+source was isolated (it ignores blending).</p>
+<p>CAVEAT: If the source has a PSF, the inversion of the covariance matrix
+is likely instable.</p>
+<dl class="docutils">
+<dt>weights: <cite>~numpy.array</cite></dt>
+<dd>Weights of the images in each band (Bands, Height, Width).</dd>
+</dl>
+<dl class="docutils">
+<dt>me: <cite>~numpy.array</cite></dt>
+<dd>Error in morphology for each pixel</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="scarlet.source.Source.get_sed_error">
+<code class="descname">get_sed_error</code><span class="sig-paren">(</span><em>weights</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source.get_sed_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source.get_sed_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get error in the SED’s</p>
+<p>This error estimate uses linear error propagation and assumes that the
+source was isolated (it ignores blending).</p>
+<dl class="docutils">
+<dt>weights: <cite>~numpy.array</cite></dt>
+<dd>Weights of the images in each band (Bands, Height, Width).</dd>
+</dl>
+<dl class="docutils">
+<dt>error: <cite>~numpy.array</cite></dt>
+<dd>Estimated error in the SED.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="scarlet.source.Source.get_slice_for">
+<code class="descname">get_slice_for</code><span class="sig-paren">(</span><em>im_shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source.get_slice_for"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source.get_slice_for" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the slice of the source frame in the full multiband image</p>
+<p>In other words, return the slice so that
+self.image[k][slice] corresponds to image[self.bb],
+where image has shape (Band, Height, Width).</p>
+<dl class="docutils">
+<dt>im_shape: tuple</dt>
+<dd>Shape of the full image</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scarlet.source.Source.has_psf">
+<code class="descname">has_psf</code><a class="headerlink" href="#scarlet.source.Source.has_psf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the source has a psf</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scarlet.source.Source.image">
+<code class="descname">image</code><a class="headerlink" href="#scarlet.source.Source.image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reshaped morphology into an array of 2D images for each component</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scarlet.source.Source.resize">
+<code class="descname">resize</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source.resize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source.resize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resize the frame</p>
+<p>Set the new frame size and update relevant parameters like the morphology,
+Gamma matrices, and constraint operators.</p>
+<dl class="docutils">
+<dt>size: float or array-like</dt>
+<dd>Either a (height,width) shape or a single size to create a
+square (size,size) frame.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="scarlet.source.Source.set_center">
+<code class="descname">set_center</code><span class="sig-paren">(</span><em>center</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source.set_center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source.set_center" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a (y,x) <cite>center</cite>, update the frame and <cite>Gamma</cite></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scarlet.source.Source.shape">
+<code class="descname">shape</code><a class="headerlink" href="#scarlet.source.Source.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shape of the source image (Band, Height, Width)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="scarlet.source.SourceInitError">
+<em class="property">exception </em><code class="descclassname">scarlet.source.</code><code class="descname">SourceInitError</code><a class="reference internal" href="_modules/scarlet/source.html#SourceInitError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.SourceInitError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Error during source initialization</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.source.get_integrated_sed">
+<code class="descclassname">scarlet.source.</code><code class="descname">get_integrated_sed</code><span class="sig-paren">(</span><em>img</em>, <em>weight</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#get_integrated_sed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.get_integrated_sed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculated the SED by summing the flux in the image in each band</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.source.get_pixel_sed">
+<code class="descclassname">scarlet.source.</code><code class="descname">get_pixel_sed</code><span class="sig-paren">(</span><em>img</em>, <em>position</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#get_pixel_sed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.get_pixel_sed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the SED at <cite>position</cite> in <cite>img</cite></p>
+<dl class="docutils">
+<dt>img: <cite>~numpy.array</cite></dt>
+<dd>(Bands, Height, Width) data array that contains a 2D image for each band</dd>
+<dt>position: array-like</dt>
+<dd>(y,x) coordinates of the source in the larger image</dd>
+</dl>
+<dl class="docutils">
+<dt>SED: <cite>~numpy.array</cite></dt>
+<dd>SED for a single source</dd>
+</dl>
+</dd></dl>
+
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none"><div class="highlight"><pre>
+<span></span>In [6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3"><div class="highlight"><pre>
+<span></span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="constraints.html" class="btn btn-neutral float-right" title="Constraints (scarlet.constraints)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="blend.html" class="btn btn-neutral" title="Blends (scarlet.blend)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Fred Moolekamp and Peter Melchior.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

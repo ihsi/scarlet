@@ -1,0 +1,9 @@
+Constraints
+===========
+
+.. _scarlet.constraints:
+
+Reference/API
+-------------
+.. automodule:: scarlet.constraints
+    :members:

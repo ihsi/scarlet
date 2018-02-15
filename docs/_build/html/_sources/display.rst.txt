@@ -1,0 +1,14 @@
+Display Utilities
+=================
+
+.. _scarlet.display:
+
+It is often useful to visualize deblending results in `matplotlib`_ or similar plotting software.
+:mod:`scarlet` includes several convenience methods to scale flux and convert multiband image data into RGB arrays.
+
+Reference/API
+-------------
+.. automodule:: scarlet.display
+    :members:
+
+.. _matplotlib: https://matplotlib.org

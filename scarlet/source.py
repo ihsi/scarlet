@@ -9,6 +9,8 @@ import logging
 logger = logging.getLogger("scarlet.source")
 
 class SourceInitError(Exception):
+    """Error during source initialization
+    """
     pass
 
 class Source(object):
@@ -421,6 +423,13 @@ def get_integrated_sed(img, weight):
 
 
 class PointSource(Source):
+    """Create a point source
+
+    `~scarlet.source.PointSource` objects are initialized with the SED of the peak pixel,
+    and the morphology of a single pixel (the peak) turned on.
+    While a `~scarlet.source.PointSource` can have any `constraints`, the default constraints are
+    symmetry and monotonicity.
+    """
     def __init__(self, center, img, shape, constraints=None, psf=None):
         self.center = center
         sed, morph = self.make_initial(img, shape)
@@ -428,7 +437,7 @@ class PointSource(Source):
         if constraints is None:
             constraints = sc.SimpleConstraint() & sc.DirectMonotonicityConstraint(use_nearest=False) & sc.SymmetryConstraint()
 
-        super(PointSource, self).__init__(sed, morph, center=center, onstraints=constraints, psf=psf, fix_sed=False, fix_morph=False, fix_frame=False, shift_center=0.1)
+        super(PointSource, self).__init__(sed, morph, center=center, constraints=constraints, psf=psf, fix_sed=False, fix_morph=False, fix_frame=False, shift_center=0.1)
 
     def make_initial(self, img, shape, tiny=1e-10):
         """Initialize the source using only the peak pixel
@@ -449,7 +458,7 @@ class PointSource(Source):
         B, Ny, Nx = img.shape
         _y, _x = self.center_int
         try:
-            sed = get_pixel_sed(img, source.center_int)
+            sed = get_pixel_sed(img, self.center_int)
         except SourceInitError:
             # flat weights as fall-back
             sed = np.ones(B) / B
@@ -460,9 +469,18 @@ class PointSource(Source):
         return sed.reshape((1,B)), morph.reshape((1, shape[0], shape[1]))
 
 class ExtendedSource(Source):
-    def __init__(self, center, img, bg_rms, constraints=None, psf=None):
+    """Create an extended source
+
+    Extended sources are initialized to have flux that are (optionally) symmetric and
+    monotonically decreasing from the peak pixel,
+    contained in the minimal box necessary to enclose all of the initial flux.
+    By default the model for the source will continue to be monotonic and symmetric,
+    but other `constraints` can be used.
+    """
+    def __init__(self, center, img, bg_rms, constraints=None, psf=None, symmetric=True, monotonic=True,
+                 thresh=1.):
         self.center = center
-        sed, morph = self.make_initial(img, bg_rms)
+        sed, morph = self.make_initial(img, bg_rms, thresh, symmetric, monotonic)
 
         if constraints is None:
             constraints = sc.SimpleConstraint() & sc.DirectMonotonicityConstraint(use_nearest=False) & sc.SymmetryConstraint()
@@ -470,7 +488,21 @@ class ExtendedSource(Source):
         super(ExtendedSource, self).__init__(sed, morph, center=center, constraints=constraints, psf=psf, fix_sed=False, fix_morph=False, fix_frame=False, shift_center=0.2)
 
     def make_initial(self, img, bg_rms, thresh=1., symmetric=True, monotonic=True):
+        """Initialize the source that is symmetric and monotonic
 
+        Parameters
+        ----------
+        source: :class:`~scarlet.source.Source`
+            `Source` to initialize.
+        img: :class:`~numpy.array`
+            (Bands, Height, Width) data array that contains a 2D image for each band
+        bg_rms: array_like
+            RMS value of the background in each band. This should have the same shape as `img`.
+        symmetric: `bool`
+            Whether or not to make the initial morphology symmetric about the peak.
+        monotonic: `bool`
+            Whether or not to make the initial morphology monotonically decreasing from the peak.
+        """
         # every source as large as the entire image, but shifted to its centroid
         B, Ny, Nx = img.shape
         self._set_frame(self.center, (Ny,Nx))

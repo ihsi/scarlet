@@ -1,0 +1,946 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>scarlet.blend &mdash; scarlet  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="scarlet  documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> scarlet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_docs.html">User Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">scarlet</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>scarlet.blend</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for scarlet.blend</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="k">import</span> <span class="n">partial</span>
+
+<span class="kn">import</span> <span class="nn">proxmin</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;scarlet.blend&quot;</span><span class="p">)</span>
+
+<span class="c1"># declare special exception for resizing events</span>
+<span class="k">class</span> <span class="nc">ScarletRestartException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<div class="viewcode-block" id="Blend"><a class="viewcode-back" href="../../transformations.html#scarlet.blend.Blend">[docs]</a><span class="k">class</span> <span class="nc">Blend</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The blended scene as interpreted by the deblender.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sky</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bg_rms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">refine_skip</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">center_min_dist</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">source_sizes</span><span class="o">=</span><span class="p">[</span><span class="mi">15</span><span class="p">,</span><span class="mi">25</span><span class="p">,</span><span class="mi">45</span><span class="p">,</span><span class="mi">75</span><span class="p">,</span><span class="mi">115</span><span class="p">,</span><span class="mi">165</span><span class="p">],</span> <span class="n">edge_flux_thresh</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+                 <span class="n">exact_lipschitz</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructor</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sources: list of `~scarlet.Source` objects</span>
+<span class="sd">            Individual sources in the blend.</span>
+<span class="sd">            The scarlet deblender requires the user to detect sources</span>
+<span class="sd">            and configure their constraints before initializing a blend</span>
+<span class="sd">        img: array-like</span>
+<span class="sd">            (Bands, Height, Width) image array containing the data.</span>
+<span class="sd">        weights: `~numpy.array`, default=`None`</span>
+<span class="sd">            Array (Bands, Height, Width) of weights to use for each pixel in each band.</span>
+<span class="sd">            .. warning::</span>
+
+<span class="sd">                The weights should be flat in each band</span>
+<span class="sd">                (except for zero weighted masked out pixels).</span>
+<span class="sd">                Our analysis has shown that when the weights are widely varying</span>
+<span class="sd">                over an image in a single band, SED colors (and hence morphologies)</span>
+<span class="sd">                are poorly modeled.</span>
+<span class="sd">        sky: array-like, default=`None`</span>
+<span class="sd">            Array (Bands, Height, Width) of the estimated sky level in each image, in each band.</span>
+<span class="sd">            This is subtracted from `img`, so if `img` has already happend then this</span>
+<span class="sd">            should be `None`.</span>
+<span class="sd">        bg_rms: array-like, default=`None`</span>
+<span class="sd">            Array of length `Bands` that contains the sky background RMS in the image for each band</span>
+<span class="sd">        refine_skip: int, default=10</span>
+<span class="sd">            How many iterations to skip before refining box sizes/positions</span>
+<span class="sd">        center_min_dist: float, default=1e-3</span>
+<span class="sd">            Minimum change is position required to trigger repositioning a source</span>
+<span class="sd">        edge_flux_thresh: float, 1.0</span>
+<span class="sd">            Boxes are resized when flux at an edge is &gt; `edge_flux_thresh` * `bg_rms`</span>
+<span class="sd">        source_sizes: array_like, integer-valued</span>
+<span class="sd">            Size of the source boxes available when resizing</span>
+<span class="sd">        exact_lipschitz: bool, default=False</span>
+<span class="sd">            Calculate exact Lipschitz constant in every step or only calculate the Lipschitz</span>
+<span class="sd">            constant with significant changes in A,S</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
+        <span class="c1"># store all source and make search structures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_register_sources</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">B</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">B</span>
+
+        <span class="c1"># source refinement parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">refine_skip</span> <span class="o">=</span> <span class="n">refine_skip</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">center_min_dist</span> <span class="o">=</span> <span class="n">center_min_dist</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edge_flux_thresh</span> <span class="o">=</span> <span class="n">edge_flux_thresh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source_sizes</span> <span class="o">=</span> <span class="n">source_sizes</span>
+
+        <span class="c1"># fit parameters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_order</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slack</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exact_lipschitz</span> <span class="o">=</span> <span class="n">exact_lipschitz</span>
+
+        <span class="c1"># set up data structures</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">sky</span><span class="o">=</span><span class="n">sky</span><span class="p">,</span> <span class="n">bg_rms</span><span class="o">=</span><span class="n">bg_rms</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Blend.source_of"><a class="viewcode-back" href="../../transformations.html#scarlet.blend.Blend.source_of">[docs]</a>    <span class="k">def</span> <span class="nf">source_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the indices of model component k.</span>
+
+<span class="sd">        Each of `m` `~scarlet.source.Source`s in the model can have multiple</span>
+<span class="sd">        components, but the main algorithm recognizes each component as a single</span>
+<span class="sd">        source, for `k=Sum_m(m_l)` total sources.</span>
+<span class="sd">        This method returns the tuple of indices `(m,l)` for source `k`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_of</span><span class="p">[</span><span class="n">k</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Blend.component_of"><a class="viewcode-back" href="../../transformations.html#scarlet.blend.Blend.component_of">[docs]</a>    <span class="k">def</span> <span class="nf">component_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Search for k index of source m, component l.</span>
+
+<span class="sd">        This is the inverse of source_of, and returns `k` for the given</span>
+<span class="sd">        pair `(m,l)`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_of</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">l</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">k</span>
+        <span class="k">raise</span> <span class="ne">IndexError</span></div>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Number of `~scarlet.source.Source`s (not including components)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_proxs_g</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Proximal operator for each source in the dual update</span>
+
+<span class="sd">        Each source can have its own value for prox g, and because the size and shape of</span>
+<span class="sd">        a source can change at runtime, _proxs_g is property called by the bSDMM algorithm.</span>
+<span class="sd">        These functions are created in `~scarlet.source.Source.set_constraints`.</span>
+
+<span class="sd">        This is the proximal operator that is applied to the `A` or `S` update</span>
+<span class="sd">        of the dual variable.</span>
+<span class="sd">        See Algorithm 3, line 12 in Moolekamp and Melchior 2017</span>
+<span class="sd">        (https://arxiv.org/pdf/1708.09066.pdf) for more.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">proxs_g_sed</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">proxs_g_morph</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">):</span>
+            <span class="n">m</span><span class="p">,</span><span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_of</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="n">proxs_g_sed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">.</span><span class="n">prox_g_sed</span><span class="p">)</span>
+            <span class="n">proxs_g_morph</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">.</span><span class="n">prox_g_morph</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">proxs_g_sed</span> <span class="o">+</span> <span class="n">proxs_g_morph</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_Ls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Linear operator for each source in the dual update</span>
+
+<span class="sd">        See section 2.3 in Moolekamp and Melchior 2017</span>
+<span class="sd">        (https://arxiv.org/pdf/1708.09066.pdf) for details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Ls_sed</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">Ls_morph</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">):</span>
+            <span class="n">m</span><span class="p">,</span><span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_of</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="n">Ls_sed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">.</span><span class="n">L_sed</span><span class="p">)</span>
+            <span class="n">Ls_morph</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">.</span><span class="n">L_morph</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Ls_sed</span> <span class="o">+</span> <span class="n">Ls_morph</span>
+
+<div class="viewcode-block" id="Blend.fit"><a class="viewcode-back" href="../../transformations.html#scarlet.blend.Blend.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">e_rel</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fit the model for each source to the data</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        steps: int</span>
+<span class="sd">            Maximum number of iterations if the algorithm doesn&#39;t converge.</span>
+<span class="sd">        e_rel: float, default=`None`</span>
+<span class="sd">            Relative error for convergence. If `e_rel` is `None`, the default</span>
+<span class="sd">            `~scarlet.blend.Blend.e_rel` is used for convergence checks</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self: `~scarlet.blend.Blend`</span>
+<span class="sd">            This object, which contains the results of the deblender.</span>
+<span class="sd">            For investigating the model components, use the source list specified</span>
+<span class="sd">            at construction time or `~scarlet.blend.Blend.sources`, which is</span>
+<span class="sd">            the internal reference to that list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">it</span> <span class="c1"># test of this is first time fit is called</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">it</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_it</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="c1"># Caches for 1/Lipschitz for A and S</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cbAS</span> <span class="o">=</span> <span class="p">[</span><span class="n">proxmin</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">ApproximateCache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_one_over_lipschitz</span><span class="p">,</span> <span class="n">slack</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">slack</span><span class="p">),</span>
+                          <span class="n">proxmin</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">ApproximateCache</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_one_over_lipschitz</span><span class="p">,</span> <span class="n">slack</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">slack</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exact_lipschitz</span><span class="p">:</span>
+            <span class="c1"># use full weight matrixes</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_Sigma_1</span>
+            <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                <span class="n">B</span><span class="p">,</span> <span class="n">Ny</span><span class="p">,</span> <span class="n">Nx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span>
+                <span class="kn">import</span> <span class="nn">scipy.sparse</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_Sigma_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">B</span><span class="o">*</span><span class="n">Ny</span><span class="o">*</span><span class="n">Nx</span><span class="p">)]</span> <span class="o">*</span> <span class="mi">2</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_Sigma_1</span> <span class="o">=</span> <span class="p">[</span><span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">diags</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">]</span>
+            <span class="c1"># use full-frame Gamma matrices</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_psf</span><span class="p">:</span>
+                <span class="kn">from</span> <span class="nn">.transformations</span> <span class="k">import</span> <span class="n">GammaOp</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_Gamma_full</span> <span class="o">=</span> <span class="p">[</span> <span class="n">source</span><span class="o">.</span><span class="n">_gammaOp</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">offset_int</span><span class="o">=</span><span class="n">source</span><span class="o">.</span><span class="n">center_int</span><span class="p">)</span>
+                                    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">]</span>
+
+        <span class="c1"># define error limits</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">e_rel</span> <span class="o">=</span> <span class="n">e_rel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_error_limits</span><span class="p">()</span>
+
+        <span class="c1"># collect all SEDs and morphologies, plus associated errors</span>
+        <span class="n">XA</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">XS</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">):</span>
+            <span class="n">m</span><span class="p">,</span><span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_of</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="n">XA</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">sed</span><span class="p">[</span><span class="n">l</span><span class="p">])</span>
+            <span class="n">XS</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">morph</span><span class="p">[</span><span class="n">l</span><span class="p">])</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">XA</span> <span class="o">+</span> <span class="n">XS</span>
+
+        <span class="c1"># update_order for bSDMM is over *all* components</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">_update_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_update_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">))</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">))</span>
+
+        <span class="c1"># run bSDMM on all SEDs and morphologies</span>
+        <span class="n">steps_g</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">steps_g_update</span> <span class="o">=</span> <span class="s1">&#39;steps_f&#39;</span>
+        <span class="n">accelerated</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">traceback</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">max_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">it</span> <span class="o">+</span> <span class="n">steps</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">proxmin</span><span class="o">.</span><span class="n">algorithms</span><span class="o">.</span><span class="n">bsdmm</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prox_f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_steps_f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxs_g</span><span class="p">,</span> <span class="n">steps_g</span><span class="o">=</span><span class="n">steps_g</span><span class="p">,</span>
+                <span class="n">Ls</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_Ls</span><span class="p">,</span> <span class="n">update_order</span><span class="o">=</span><span class="n">_update_order</span><span class="p">,</span> <span class="n">steps_g_update</span><span class="o">=</span><span class="n">steps_g_update</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="n">steps</span><span class="p">,</span>
+                <span class="n">e_rel</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_e_rel</span><span class="p">,</span> <span class="n">e_abs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_e_abs</span><span class="p">,</span> <span class="n">accelerated</span><span class="o">=</span><span class="n">accelerated</span><span class="p">,</span> <span class="n">traceback</span><span class="o">=</span><span class="n">traceback</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ScarletRestartException</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">it</span> <span class="o">&lt;</span> <span class="n">max_iter</span><span class="p">:</span> <span class="c1"># don&#39;t restart at last iteration</span>
+                <span class="n">steps</span> <span class="o">=</span> <span class="n">max_iter</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">it</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">steps</span><span class="o">=</span><span class="n">steps</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Blend.set_data"><a class="viewcode-back" href="../../transformations.html#scarlet.blend.Blend.set_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sky</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bg_rms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the data.</span>
+
+<span class="sd">        Subtract the sky from the image, initialize the weights and background rms.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">sky</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_img</span> <span class="o">=</span> <span class="n">img</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_img</span> <span class="o">=</span> <span class="n">img</span><span class="o">-</span><span class="n">sky</span>
+        <span class="k">if</span> <span class="n">bg_rms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bg_rms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">bg_rms</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_bg_rms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bg_rms</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_weights</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Blend.get_model"><a class="viewcode-back" href="../../transformations.html#scarlet.blend.Blend.get_model">[docs]</a>    <span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">combine</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">combine_source_components</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_sed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute the current model for the entire image.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">combine</span><span class="o">=</span><span class="n">combine_source_components</span><span class="p">,</span> <span class="n">use_sed</span><span class="o">=</span><span class="n">use_sed</span><span class="p">)</span>
+            <span class="n">model_slice</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_slice_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">combine_source_components</span><span class="p">:</span>
+                <span class="n">model_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="n">model_img</span><span class="p">[</span><span class="n">source</span><span class="o">.</span><span class="n">bb</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="n">model_slice</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># keep record of flux at edge of the source model</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_edge_flux</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+
+                <span class="n">model_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">source</span><span class="o">.</span><span class="n">K</span><span class="p">,)</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">source</span><span class="o">.</span><span class="n">K</span><span class="p">):</span>
+                    <span class="n">model_img</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">source</span><span class="o">.</span><span class="n">bb</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">model_slice</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">model_img</span>
+
+        <span class="c1"># for all sources</span>
+        <span class="k">if</span> <span class="n">combine</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">combine_source_components</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_sed</span><span class="o">=</span><span class="n">use_sed</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">m</span><span class="o">=</span><span class="n">m</span><span class="p">,</span> <span class="n">combine_source_components</span><span class="o">=</span><span class="n">combine_source_components</span><span class="p">,</span>
+                                     <span class="n">use_sed</span><span class="o">=</span><span class="n">use_sed</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">flat</span><span class="p">:</span>
+                <span class="n">models</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">models</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">models</span></div>
+
+    <span class="k">def</span> <span class="nf">_register_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sources</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Unpack the components to register them as individual sources.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sources</span> <span class="o">=</span> <span class="n">sources</span> <span class="c1"># do not copy!</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span>  <span class="nb">sum</span><span class="p">([</span><span class="n">source</span><span class="o">.</span><span class="n">K</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">])</span>
+        <span class="n">have_psf</span> <span class="o">=</span> <span class="p">[</span><span class="n">source</span><span class="o">.</span><span class="n">has_psf</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_psf</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">have_psf</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">have_psf</span><span class="p">)</span> <span class="o">==</span> <span class="nb">all</span><span class="p">(</span><span class="n">have_psf</span><span class="p">)</span>
+
+        <span class="c1"># lookup of source/component tuple given component number k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_source_of</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sources</span><span class="p">)):</span>
+            <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">K</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_source_of</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">m</span><span class="p">,</span><span class="n">l</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_set_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the weights and pixel covariance matrix `_Sigma_1`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        weights: array-like</span>
+<span class="sd">            Array (Band, Height, Width) of weights for each image, in each band</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None, but sets `self._Sigma_1` and `self._weights`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">scipy.sparse</span>
+        <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+
+            <span class="c1"># for S update: normalize the per-pixel variation</span>
+            <span class="c1"># i.e. in every pixel: utilize the bands with large weights</span>
+            <span class="c1"># CAVEAT: need to filter out pixels that are saturated in every band</span>
+            <span class="n">norm_pixel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">norm_pixel</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">[</span><span class="mi">1</span><span class="p">][:,</span> <span class="n">mask</span><span class="p">]</span> <span class="o">/=</span> <span class="n">norm_pixel</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+            <span class="c1"># reverse is true for A update: for each band, use the pixels that</span>
+            <span class="c1"># have the largest weights</span>
+            <span class="n">norm_band</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">))</span>
+            <span class="c1"># CAVEAT: some regions may have one band missing completely</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">norm_band</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">weights</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span> <span class="o">/=</span> <span class="n">norm_band</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span>
+            <span class="c1"># CAVEAT: mask all pixels in which at least one band has W=0</span>
+            <span class="c1"># these are likely saturated and their colors have large weights</span>
+            <span class="c1"># but are incorrect due to missing bands</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">weights</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="c1"># and mask all bands for that pixel:</span>
+            <span class="c1"># when estimating A do not use (partially) saturated pixels</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">[</span><span class="mi">0</span><span class="p">][:,</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">_compute_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build the entire model.</span>
+
+<span class="sd">        Calculate the full model once per iteration.</span>
+<span class="sd">        This creates `self._models`, the morphological model of each source</span>
+<span class="sd">        projected onto the full image, and `self._model`, which weighs</span>
+<span class="sd">        those models with the SED for each source and adds them into a</span>
+<span class="sd">        single model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># make sure model at current iteration is computed when needed</span>
+        <span class="c1"># irrespective of function that needs it</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model_it</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">it</span><span class="p">:</span>
+            <span class="c1"># model each each component over image</span>
+            <span class="c1"># do not use SED, so that it can be reused later</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_models</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">combine</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">combine_source_components</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">use_sed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">,</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">k_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">):</span>
+                <span class="n">m</span><span class="p">,</span><span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_source_of</span><span class="p">[</span><span class="n">k_</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="p">[:,</span><span class="n">k_</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">sed</span><span class="p">[</span><span class="n">l</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="o">.</span><span class="n">T</span><span class="p">[:,:,</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_model_it</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">it</span>
+
+    <span class="k">def</span> <span class="nf">_prox_f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">Xs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">j</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Proximal operator for the X update.</span>
+
+<span class="sd">        To save processing time, the model is calculated when the first source</span>
+<span class="sd">        is updated and all subsequent prox_f calculations (in the same iteration)</span>
+<span class="sd">        use the same cached model.</span>
+
+<span class="sd">        This is the proximal operator that is applied to the `A` or `S` update.</span>
+<span class="sd">        See Algorithm 2, in Melchior &amp; Moolekamp (in prep).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X: array-like</span>
+<span class="sd">            Either `A` (sed) or `S` (morphology) of a single component of the model</span>
+<span class="sd">        step: float</span>
+<span class="sd">            Step size calculated using `self._steps_f`</span>
+<span class="sd">        Xs: array-like</span>
+<span class="sd">            List of all SEDs and morphologies of the model</span>
+<span class="sd">            SEDs for all components, then morphologies for all components</span>
+<span class="sd">        j: int</span>
+<span class="sd">            Index of the current model component in `Xs`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        result: `~numpy.array`</span>
+<span class="sd">            Array of `X` after `_prox_f` has been applied</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># which update to do now</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">j</span><span class="o">//</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">j</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span>
+        <span class="n">m</span><span class="p">,</span><span class="n">l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_of</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+        <span class="c1"># computing likelihood gradients for S and A:</span>
+        <span class="c1"># build model only once per iteration</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">block</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_order</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                <span class="sd">&quot;&quot;&quot;self.it += 1</span>
+
+<span class="sd">                # refine sources</span>
+<span class="sd">                if self.it % self.refine_skip == 0:</span>
+<span class="sd">                    resized = self.resize_sources()</span>
+<span class="sd">                    self.recenter_sources()</span>
+<span class="sd">                    self.adjust_absolute_error()</span>
+<span class="sd">                    if resized:</span>
+<span class="sd">                        raise ScarletRestartException()</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_compute_model</span><span class="p">()</span>
+
+            <span class="c1"># compute weighted residuals</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">[</span><span class="n">block</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">)</span>
+
+        <span class="c1"># A update</span>
+
+        <span class="k">if</span> <span class="n">block</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">fix_sed</span><span class="p">[</span><span class="n">l</span><span class="p">]:</span>
+                <span class="c1"># gradient of likelihood wrt A: nominally np.dot(diff, S^T)</span>
+                <span class="c1"># but with PSF convolution, S_ij -&gt; sum_q Gamma_bqi S_qj</span>
+                <span class="c1"># however, that&#39;s exactly the operation done for models[k]</span>
+                <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;...ij,...ij&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diff</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">[</span><span class="n">k</span><span class="p">])</span>
+
+                <span class="c1"># apply per component prox projection and save in source</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">sed</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span>  <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">.</span><span class="n">prox_sed</span><span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">step</span><span class="o">*</span><span class="n">grad</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+
+        <span class="c1"># S update</span>
+        <span class="k">elif</span> <span class="n">block</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">fix_morph</span><span class="p">[</span><span class="n">l</span><span class="p">]:</span>
+                <span class="c1"># gradient of likelihood wrt S: nominally np.dot(A^T,diff)</span>
+                <span class="c1"># but again: with convolution, it&#39;s more complicated</span>
+
+                <span class="c1"># first create diff image in frame of source k</span>
+                <span class="n">slice_m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">get_slice_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="n">diff_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="n">diff_k</span><span class="p">[</span><span class="n">slice_m</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diff</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">bb</span><span class="p">]</span>
+
+                <span class="c1"># now a gradient vector and a mask of pixel with updates</span>
+                <span class="n">grad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_psf</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">):</span>
+                        <span class="n">grad</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">sed</span><span class="p">[</span><span class="n">l</span><span class="p">,</span><span class="n">b</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">Gamma</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">diff_k</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">):</span>
+                        <span class="n">grad</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">sed</span><span class="p">[</span><span class="n">l</span><span class="p">,</span><span class="n">b</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">Gamma</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">diff_k</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+
+                <span class="c1"># apply per component prox projection and save in source</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">morph</span><span class="p">[</span><span class="n">l</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">constraints</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">.</span><span class="n">prox_morph</span><span class="p">(</span><span class="n">X</span> <span class="o">-</span> <span class="n">step</span><span class="o">*</span><span class="n">grad</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+
+        <span class="c1"># resize &amp; recenter: after all blocks are updated</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">block</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_order</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">it</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">it</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">refine_skip</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">resized</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resize_sources</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">recenter_sources</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">adjust_absolute_error</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">resized</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ScarletRestartException</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">X</span>
+
+
+    <span class="k">def</span> <span class="nf">_one_over_lipschitz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate 1/Lipschitz constant for A and S</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span> <span class="nn">scipy.sparse</span>
+        <span class="kn">import</span> <span class="nn">scipy.sparse.linalg</span>
+
+        <span class="n">B</span><span class="p">,</span> <span class="n">Ny</span><span class="p">,</span> <span class="n">Nx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">block</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># A</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exact_lipschitz</span><span class="p">:</span>
+                <span class="c1"># model[b] is S in band b, but need to go to frame in which</span>
+                <span class="c1"># A and S are serialized. Then Lischitz constant of A:</span>
+                <span class="c1"># LA = ||Sigma_a||_s with</span>
+                <span class="c1"># Sigma_a = ((PS)^T Sigma_pixel^-1 PS)^-1</span>
+                <span class="c1"># in the frame where A is a vector of length K*B</span>
+                <span class="c1"># NOTE: convolution implicitly treated in the models</span>
+                <span class="n">PS</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">block_diag</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">[:,</span><span class="n">b</span><span class="p">,:,:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">Ny</span><span class="o">*</span><span class="n">Nx</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+                                                <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)])</span>
+                <span class="c1"># Lipschitz constant for grad_A = || S Sigma_1 S.T||_s</span>
+                <span class="n">SSigma_1S</span> <span class="o">=</span> <span class="n">PS</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Sigma_1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">PS</span><span class="p">))</span>
+                <span class="n">LA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigs</span><span class="p">(</span><span class="n">SSigma_1S</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">return_eigenvectors</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Lipschitz constant for grad_A = || S S.T||_s</span>
+                <span class="c1"># and the PSF is implicit</span>
+                <span class="c1"># NOTE: if PSFs are very different between bands, this will fail</span>
+                <span class="c1"># because we average over the bands</span>
+                <span class="n">PS</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="n">Ny</span><span class="o">*</span><span class="n">Nx</span><span class="p">))</span>
+                <span class="n">SSigma_1S</span> <span class="o">=</span> <span class="n">PS</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">PS</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+                <span class="n">LA</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">SSigma_1S</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+            <span class="k">return</span> <span class="mf">1.</span><span class="o">/</span><span class="n">LA</span>
+
+        <span class="k">if</span> <span class="n">block</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># S</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">exact_lipschitz</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_psf</span><span class="p">:</span>
+                    <span class="c1"># Lipschitz constant for grad_S = || A.T Sigma_1 A||_s</span>
+                    <span class="c1"># need to go to frame in which A and S are serialized</span>
+                    <span class="n">PA</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">bmat</span><span class="p">([[</span><span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="n">Ny</span><span class="o">*</span><span class="n">Nx</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="p">[</span><span class="n">b</span><span class="p">,</span><span class="n">k</span><span class="p">]</span>
+                                                <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">)]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># similar calculation for S: ||Sigma_s||_s with</span>
+                    <span class="c1"># Sigma_s = ((PA)^T Sigma_pixel^-1 PA)^-1</span>
+                    <span class="c1"># in the frame where S is a vector of length N*K</span>
+                    <span class="n">PA</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">bmat</span><span class="p">([[</span><span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="p">[</span><span class="n">b</span><span class="p">,</span><span class="n">k</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Gamma_full</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">source_of</span><span class="p">(</span><span class="n">k</span><span class="p">)[</span><span class="mi">0</span><span class="p">]][</span><span class="n">b</span><span class="p">]</span>
+                                            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">)]</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">)])</span>
+                <span class="n">ASigma_1A</span> <span class="o">=</span> <span class="n">PA</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Sigma_1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">PA</span><span class="p">))</span>
+                <span class="n">LS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigs</span><span class="p">(</span><span class="n">ASigma_1A</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">return_eigenvectors</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Lipschitz constant for grad_S = || A.T Sigma_1 A||_s</span>
+                <span class="n">ASigma_1A</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_A</span><span class="p">)</span>
+                <span class="n">LS</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigvals</span><span class="p">(</span><span class="n">ASigma_1A</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+            <span class="k">return</span> <span class="mf">1.</span><span class="o">/</span><span class="n">LS</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;block </span><span class="si">{0}</span><span class="s2"> not &lt; 2!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">block</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_steps_f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the current step-size for prox f</span>
+
+<span class="sd">        This method used the cached 1/Lipschitz value when possible and</span>
+<span class="sd">        uses it to calculate the step sizes for both A and S only once per</span>
+<span class="sd">        iteration.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Xs: array-like</span>
+<span class="sd">            List of all SEDs and morphologies of the model</span>
+<span class="sd">            SEDs for all components, then morphologies for all components</span>
+<span class="sd">        j: int</span>
+<span class="sd">            Index of the current model component in `Xs`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        step: float</span>
+<span class="sd">            Step size for the current block (either A or S).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># which update to do now</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">j</span><span class="o">//</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">j</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span>
+
+        <span class="c1"># computing likelihood gradients for S and A: only once per iteration</span>
+        <span class="c1"># equal to spectral norm of covariance matrix of A or S</span>
+        <span class="k">if</span> <span class="n">block</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">k</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_compute_model</span><span class="p">()</span>
+            <span class="c1"># compute step sizes and save to reuse for every component of A or S</span>
+            <span class="c1"># _cbAS is the cached values 1/Lipschitz for A and S</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stepAS</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_cbAS</span><span class="p">[</span><span class="n">block</span><span class="p">](</span><span class="n">block</span><span class="p">)</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stepAS</span><span class="p">[</span><span class="n">block</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Blend.recenter_sources"><a class="viewcode-back" href="../../transformations.html#scarlet.blend.Blend.recenter_sources">[docs]</a>    <span class="k">def</span> <span class="nf">recenter_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Shift center position of sources to minimize residuals in all bands</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># residuals weighted with full/original weight matrix</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">)</span>
+
+        <span class="c1"># Create the differential images for all sources</span>
+        <span class="n">MT</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">updated</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">shift_center</span><span class="p">:</span>
+                <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+                <span class="n">bb_m</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">bb</span>
+                <span class="n">diff_x</span><span class="p">,</span><span class="n">diff_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_shift_differential</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">diff_x</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">diff_y</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># The source might not have any flux,</span>
+                    <span class="c1"># so don&#39;t try to fit it&#39;s position</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No flux in </span><span class="si">{0}</span><span class="s2">, skipping recentering in it </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">it</span><span class="p">))</span>
+                    <span class="k">continue</span>
+                <span class="n">diff_x</span><span class="p">[:,:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">diff_y</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="c1"># Project the difference image onto the full difference model</span>
+                <span class="c1"># (which contains the difference images for all sources)</span>
+                <span class="n">_img_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="n">_img_x</span><span class="p">[</span><span class="n">source</span><span class="o">.</span><span class="n">bb</span><span class="p">]</span> <span class="o">=</span> <span class="n">diff_x</span>
+                <span class="n">_img_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                <span class="n">_img_y</span><span class="p">[</span><span class="n">source</span><span class="o">.</span><span class="n">bb</span><span class="p">]</span> <span class="o">=</span> <span class="n">diff_y</span>
+                <span class="n">updated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+                <span class="n">MT</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_img_x</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+                <span class="n">MT</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_img_y</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">MT</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># No sources needing updates</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;No sources centers updated&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">MT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">MT</span><span class="p">)</span>
+        <span class="c1"># Simultaneously fit the positions</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="p">,</span><span class="s1">&#39;shape&#39;</span><span class="p">):</span> <span class="c1"># no/flat weights</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">MT</span><span class="p">,</span> <span class="n">MT</span><span class="o">.</span><span class="n">T</span><span class="p">)),</span> <span class="n">MT</span><span class="p">),</span> <span class="n">y</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_weights</span><span class="o">.</span><span class="n">flatten</span><span class="p">()[:,</span><span class="kc">None</span><span class="p">]</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">MT</span><span class="p">,</span> <span class="n">MT</span><span class="o">.</span><span class="n">T</span><span class="o">*</span><span class="n">w</span><span class="p">)),</span> <span class="n">MT</span><span class="p">),</span> <span class="n">y</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+        <span class="c1"># Apply the corrections to all of the sources</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">m</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">updated</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">_m</span> <span class="o">=</span> <span class="n">updated</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+            <span class="n">ddx</span><span class="p">,</span> <span class="n">ddy</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">_m</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="n">_m</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">ddx</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ddy</span><span class="o">**</span><span class="mi">2</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">center_min_dist</span><span class="o">**</span><span class="mi">2</span><span class="p">:</span>
+                <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+                <span class="n">center</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">center</span> <span class="o">+</span> <span class="p">(</span><span class="n">ddy</span><span class="p">,</span> <span class="n">ddx</span><span class="p">)</span>
+                <span class="n">source</span><span class="o">.</span><span class="n">set_center</span><span class="p">(</span><span class="n">center</span><span class="p">)</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;shifting source </span><span class="si">{0}</span><span class="s2"> by (</span><span class="si">{1:.3f}</span><span class="s2">/</span><span class="si">{2:.3f}</span><span class="s2">) to (</span><span class="si">{3:.3f}</span><span class="s2">/</span><span class="si">{4:.3f}</span><span class="s2">) in it </span><span class="si">{5}</span><span class="s2">&quot;</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">ddy</span><span class="p">,</span> <span class="n">ddx</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">center</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">source</span><span class="o">.</span><span class="n">center</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">it</span><span class="p">))</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_shift_differential</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the difference image used ot fit positions</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        m: int</span>
+<span class="sd">            Index of the source in `~scarlet.blend.Blend.sources`</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        diff_img: `~numpy.array`</span>
+<span class="sd">            Difference image in each band used to fit the position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># compute (model - dxy*shifted_model)/dxy for first-order derivative</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span>
+        <span class="n">slice_m</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">get_slice_for</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_of</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">model_m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">bb</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">*</span> <span class="n">source</span><span class="o">.</span><span class="n">sed</span><span class="p">[</span><span class="mi">0</span><span class="p">][:,</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span>
+        <span class="c1"># in self._models, per-source components aren&#39;t combined,</span>
+        <span class="c1"># need to combine here</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">source</span><span class="o">.</span><span class="n">K</span><span class="p">):</span>
+            <span class="n">k</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_of</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">l</span><span class="p">)</span>
+            <span class="n">model_m</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_models</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">bb</span><span class="p">]</span> <span class="o">*</span> <span class="n">source</span><span class="o">.</span><span class="n">sed</span><span class="p">[</span><span class="n">l</span><span class="p">][:,</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">]</span>
+
+        <span class="c1"># get Gamma matrices of source m with additional shift</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">shift_center</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">center</span> <span class="o">-</span> <span class="n">source</span><span class="o">.</span><span class="n">center_int</span>
+        <span class="n">pos_x</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">+</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
+        <span class="n">pos_y</span> <span class="o">=</span> <span class="n">dx</span> <span class="o">+</span> <span class="p">(</span><span class="n">offset</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># If the source shifted off of the image,</span>
+        <span class="c1"># recenter and re-initialize it</span>
+        <span class="n">center_x</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">center</span> <span class="o">+</span> <span class="n">pos_x</span>
+        <span class="n">center_y</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">center</span> <span class="o">+</span> <span class="n">pos_y</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1">#TODO: Implement bounding check on the source</span>
+
+        <span class="n">dGamma_x</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">_gammaOp</span><span class="p">(</span><span class="n">pos_x</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">dGamma_y</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="n">_gammaOp</span><span class="p">(</span><span class="n">pos_y</span><span class="p">,</span> <span class="n">source</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="n">diff_img</span> <span class="o">=</span> <span class="p">[</span><span class="n">source</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">combine</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">Gamma</span><span class="o">=</span><span class="n">dGamma_x</span><span class="p">),</span>
+                    <span class="n">source</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">combine</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">Gamma</span><span class="o">=</span><span class="n">dGamma_y</span><span class="p">)]</span>
+        <span class="n">diff_img</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">model_m</span><span class="o">-</span><span class="n">diff_img</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">slice_m</span><span class="p">])</span><span class="o">/</span><span class="n">source</span><span class="o">.</span><span class="n">shift_center</span>
+        <span class="n">diff_img</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">model_m</span><span class="o">-</span><span class="n">diff_img</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="n">slice_m</span><span class="p">])</span><span class="o">/</span><span class="n">source</span><span class="o">.</span><span class="n">shift_center</span>
+        <span class="k">return</span> <span class="n">diff_img</span>
+
+    <span class="k">def</span> <span class="nf">_set_edge_flux</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Keep track of the flux at the edge of the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        m: int</span>
+<span class="sd">            Index of the source</span>
+<span class="sd">        model: `~numpy.array`</span>
+<span class="sd">            (Band,Height,Width) array of the model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None, but sets `self._edge_flux`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edge_flux</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_edge_flux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">))</span>
+
+        <span class="c1"># top, right, bottom, left</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edge_flux</span><span class="p">[</span><span class="n">m</span><span class="p">,</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">model</span><span class="p">[:,:,</span><span class="o">-</span><span class="mi">1</span><span class="p">,:])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edge_flux</span><span class="p">[</span><span class="n">m</span><span class="p">,</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">model</span><span class="p">[:,:,:,</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edge_flux</span><span class="p">[</span><span class="n">m</span><span class="p">,</span><span class="mi">2</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">model</span><span class="p">[:,:,</span><span class="mi">0</span><span class="p">,:])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_edge_flux</span><span class="p">[</span><span class="n">m</span><span class="p">,</span><span class="mi">3</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">model</span><span class="p">[:,:,:,</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_find_next_source_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># find first element not smaller than value</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">source_sizes</span> <span class="o">&gt;=</span> <span class="n">value</span><span class="p">)</span>
+        <span class="c1"># if not possible, use largest element</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">idx</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_sizes</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Blend.resize_sources"><a class="viewcode-back" href="../../transformations.html#scarlet.blend.Blend.resize_sources">[docs]</a>    <span class="k">def</span> <span class="nf">resize_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resize frames for sources (if necessary).</span>
+
+<span class="sd">        If for any source, the mean flux at the edges of the frame exceeds</span>
+<span class="sd">        `~scarlet.edge_flux_thresh` times the sky background in any band,</span>
+<span class="sd">        increase the frame size of that source.</span>
+
+<span class="sd">        The increase is set at `max(10, 0.25*size)` for the size of the source</span>
+<span class="sd">        frame in either direction.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">resized</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">fix_frame</span><span class="p">:</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">Ny</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">Nx</span><span class="p">]</span>
+                <span class="n">increase</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mf">0.25</span><span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">size</span><span class="p">]</span>
+                <span class="n">newsize</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_find_next_source_size</span><span class="p">(</span><span class="n">size</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">increase</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>
+
+                <span class="c1"># check if max flux along edge in band b &lt; avg noise level along edge in b</span>
+                <span class="n">at_edge</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_edge_flux</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_bg_rms</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_flux_thresh</span><span class="p">)</span>
+                <span class="c1"># TODO: without symmetry constraints, the four edges of the box</span>
+                <span class="c1"># should be allowed to resize independently</span>
+                <span class="n">_size</span> <span class="o">=</span> <span class="p">[</span><span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                <span class="n">resized_source</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">at_edge</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="n">at_edge</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">()):</span>
+                    <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsize</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">resized</span> <span class="o">=</span> <span class="n">resized_source</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">at_edge</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="n">at_edge</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">()):</span>
+                    <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">newsize</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">resized</span> <span class="o">=</span> <span class="n">resized_source</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="n">resized_source</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;resizing source </span><span class="si">{0}</span><span class="s2"> from (</span><span class="si">{1}</span><span class="s2">,</span><span class="si">{2}</span><span class="s2">) to (</span><span class="si">{3}</span><span class="s2">,</span><span class="si">{4}</span><span class="s2">) at it </span><span class="si">{5}</span><span class="s2">&quot;</span> <span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">m</span><span class="p">,</span> <span class="n">_size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">_size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">size</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">it</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resized</span></div>
+
+    <span class="k">def</span> <span class="nf">_absolute_morph_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the absolute morphology error</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">e_rel</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">morph</span><span class="p">[</span><span class="n">l</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sources</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">K</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">_set_error_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the error limits for each source</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_e_rel</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">e_rel</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span>
+        <span class="c1"># absolute errors: e_rel * mean signal, will be updated later</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_e_abs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">e_rel</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">B</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_e_abs</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_absolute_morph_error</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Blend.adjust_absolute_error"><a class="viewcode-back" href="../../transformations.html#scarlet.blend.Blend.adjust_absolute_error">[docs]</a>    <span class="k">def</span> <span class="nf">adjust_absolute_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adjust the absolute error for each source</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_e_abs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_absolute_morph_error</span><span class="p">()</span></div></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Fred Moolekamp and Peter Melchior.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

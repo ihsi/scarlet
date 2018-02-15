@@ -1,0 +1,479 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Sources &mdash; scarlet  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="scarlet  documentation" href="index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> scarlet
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="source.html">Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constraints.html">Constraints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="blend.html">Blends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="display.html">Display Utilities</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">scarlet</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Sources</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/_source.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+/* nice headers on first paragraph of info/warning boxes */
+.admonition .first {
+    margin: -12px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+    color: #fff;
+    line-height: 1;
+    display: block;
+}
+.admonition.warning .first {
+    background: #f0b37e;
+}
+.admonition.note .first {
+    background: #6ab0de;
+}
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+</style>
+<div class="section" id="sources">
+<h1>Sources<a class="headerlink" href="#sources" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<span id="scarlet-source"></span><h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference internal" href="#scarlet-source">scarlet.source</a> provides classes for creating <a class="reference internal" href="#scarlet.source.Source" title="scarlet.source.Source"><code class="xref py py-class docutils literal"><span class="pre">Source</span></code></a> objects,
+which represent models for individual astrophysical sources.
+A <a class="reference internal" href="#scarlet.source.Source" title="scarlet.source.Source"><code class="xref py py-class docutils literal"><span class="pre">Source</span></code></a> is a source in a blend which is usually a single component
+(a morphology and a single SED) but can also be made up of multiple components, each with it’s
+own SED and morphology.</p>
+<p>Typically a new source class inherits from the base <a class="reference internal" href="#scarlet.source.Source" title="scarlet.source.Source"><code class="xref py py-class docutils literal"><span class="pre">Source</span></code></a> class
+with a specific set of constraints (see <code class="xref py py-class docutils literal"><span class="pre">Constraint</span></code>)
+and an initialization function.
+For example, and <a class="reference internal" href="#scarlet.source.ExtendedSource" title="scarlet.source.ExtendedSource"><code class="xref py py-class docutils literal"><span class="pre">ExtendedSource</span></code></a> is a <code class="xref py py-class docutils literal"><span class="pre">Source</span></code>
+initialized to be monotonic and symmetric,
+although an alternative <a class="reference internal" href="constraints.html#scarlet.constraints.Constraint" title="scarlet.constraints.Constraint"><code class="xref py py-class docutils literal"><span class="pre">Constraint</span></code></a> can be specified.</p>
+</div>
+<div class="section" id="module-scarlet.source">
+<span id="reference-api"></span><h2>Reference/API<a class="headerlink" href="#module-scarlet.source" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="scarlet.source.ExtendedSource">
+<em class="property">class </em><code class="descclassname">scarlet.source.</code><code class="descname">ExtendedSource</code><span class="sig-paren">(</span><em>center</em>, <em>img</em>, <em>bg_rms</em>, <em>constraints=None</em>, <em>psf=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#ExtendedSource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.ExtendedSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an extended source</p>
+<p>Extended sources are initialized to have flux that are (optionally) symmetric and
+monotonically decreasing from the peak pixel,
+contained in the minimal box necessary to enclose all of the initial flux.
+By default the model for the source will continue to be monotonic and symmetric,
+but other <cite>constraints</cite> can be used.</p>
+<dl class="method">
+<dt id="scarlet.source.ExtendedSource.make_initial">
+<code class="descname">make_initial</code><span class="sig-paren">(</span><em>img</em>, <em>bg_rms</em>, <em>thresh=1.0</em>, <em>symmetric=True</em>, <em>monotonic=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#ExtendedSource.make_initial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.ExtendedSource.make_initial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the source that is symmetric and monotonic</p>
+<dl class="docutils">
+<dt>source: <a class="reference internal" href="#scarlet.source.Source" title="scarlet.source.Source"><code class="xref py py-class docutils literal"><span class="pre">Source</span></code></a></dt>
+<dd><cite>Source</cite> to initialize.</dd>
+<dt>img: <code class="xref py py-class docutils literal"><span class="pre">array</span></code></dt>
+<dd>(Bands, Height, Width) data array that contains a 2D image for each band</dd>
+<dt>bg_rms: array_like</dt>
+<dd>RMS value of the background in each band. This should have the same shape as <cite>img</cite>.</dd>
+<dt>symmetric: <cite>bool</cite></dt>
+<dd>Whether or not to make the initial morphology symmetric about the peak.</dd>
+<dt>monotonic: <cite>bool</cite></dt>
+<dd>Whether or not to make the initial morphology monotonically decreasing from the peak.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scarlet.source.PointSource">
+<em class="property">class </em><code class="descclassname">scarlet.source.</code><code class="descname">PointSource</code><span class="sig-paren">(</span><em>center</em>, <em>img</em>, <em>shape</em>, <em>constraints=None</em>, <em>psf=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#PointSource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.PointSource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a point source</p>
+<p><cite>~scarlet.source.PointSource</cite> objects are initialized with the SED of the peak pixel,
+and the morphology of a single pixel (the peak) turned on.
+While a <cite>~scarlet.source.PointSource</cite> can have any <cite>constraints</cite>, the default constraints are
+symmetry and monotonicity.</p>
+<dl class="method">
+<dt id="scarlet.source.PointSource.make_initial">
+<code class="descname">make_initial</code><span class="sig-paren">(</span><em>img</em>, <em>shape</em>, <em>tiny=1e-10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#PointSource.make_initial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.PointSource.make_initial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize the source using only the peak pixel</p>
+<dl class="docutils">
+<dt>source: <cite>~scarlet.source.Source</cite></dt>
+<dd><cite>Source</cite> to initialize.</dd>
+<dt>img: <cite>~numpy.array</cite></dt>
+<dd>(Bands, Height, Width) data array that contains a 2D image for each band</dd>
+</dl>
+<p>This implementation initializes the sed from the pixel in
+the center of the frame and sets morphology to only comprise that pixel,
+which works well for point sources and poorly resolved galaxies.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="scarlet.source.Source">
+<em class="property">class </em><code class="descclassname">scarlet.source.</code><code class="descname">Source</code><span class="sig-paren">(</span><em>sed</em>, <em>morph_image</em>, <em>constraints=None</em>, <em>center=None</em>, <em>psf=None</em>, <em>fix_sed=False</em>, <em>fix_morph=False</em>, <em>fix_frame=False</em>, <em>shift_center=0.2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source" title="Permalink to this definition">¶</a></dt>
+<dd><p>A single source in a blend</p>
+<dl class="attribute">
+<dt id="scarlet.source.Source.Nx">
+<code class="descname">Nx</code><a class="headerlink" href="#scarlet.source.Source.Nx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Width of the frame</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scarlet.source.Source.Ny">
+<code class="descname">Ny</code><a class="headerlink" href="#scarlet.source.Source.Ny" title="Permalink to this definition">¶</a></dt>
+<dd><p>Height of the frame</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scarlet.source.Source.center_int">
+<code class="descname">center_int</code><a class="headerlink" href="#scarlet.source.Source.center_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rounded (not truncated) integer pixel position of the center</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scarlet.source.Source.get_model">
+<code class="descname">get_model</code><span class="sig-paren">(</span><em>combine=True</em>, <em>Gamma=None</em>, <em>use_sed=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source.get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source.get_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the model of all components for the current source</p>
+<dl class="docutils">
+<dt>combine: bool, default=`True`</dt>
+<dd>Whether or not to combine all of the components into a single model</dd>
+<dt>Gamma: <cite>~scarlet.transformations.GammaOp</cite>, default=`None`</dt>
+<dd>Gamma transformation to convolve with PSF and perform linear transform.
+If <cite>Gamma</cite> is <cite>None</cite> then <cite>self.Gamma</cite> is used.</dd>
+<dt>use_sed: bool, default=`True`</dt>
+<dd>Whether to use the SED to create a multi-color model or model of just the morphology</dd>
+</dl>
+<dl class="docutils">
+<dt>model: <cite>~numpy.array</cite></dt>
+<dd>(Bands, Height, Width) image of the model</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="scarlet.source.Source.get_morph_error">
+<code class="descname">get_morph_error</code><span class="sig-paren">(</span><em>weights</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source.get_morph_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source.get_morph_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get error in the morphology</p>
+<p>This error estimate uses linear error propagation and assumes that the
+source was isolated (it ignores blending).</p>
+<p>CAVEAT: If the source has a PSF, the inversion of the covariance matrix
+is likely instable.</p>
+<dl class="docutils">
+<dt>weights: <cite>~numpy.array</cite></dt>
+<dd>Weights of the images in each band (Bands, Height, Width).</dd>
+</dl>
+<dl class="docutils">
+<dt>me: <cite>~numpy.array</cite></dt>
+<dd>Error in morphology for each pixel</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="scarlet.source.Source.get_sed_error">
+<code class="descname">get_sed_error</code><span class="sig-paren">(</span><em>weights</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source.get_sed_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source.get_sed_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get error in the SED’s</p>
+<p>This error estimate uses linear error propagation and assumes that the
+source was isolated (it ignores blending).</p>
+<dl class="docutils">
+<dt>weights: <cite>~numpy.array</cite></dt>
+<dd>Weights of the images in each band (Bands, Height, Width).</dd>
+</dl>
+<dl class="docutils">
+<dt>error: <cite>~numpy.array</cite></dt>
+<dd>Estimated error in the SED.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="scarlet.source.Source.get_slice_for">
+<code class="descname">get_slice_for</code><span class="sig-paren">(</span><em>im_shape</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source.get_slice_for"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source.get_slice_for" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the slice of the source frame in the full multiband image</p>
+<p>In other words, return the slice so that
+self.image[k][slice] corresponds to image[self.bb],
+where image has shape (Band, Height, Width).</p>
+<dl class="docutils">
+<dt>im_shape: tuple</dt>
+<dd>Shape of the full image</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scarlet.source.Source.has_psf">
+<code class="descname">has_psf</code><a class="headerlink" href="#scarlet.source.Source.has_psf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether the source has a psf</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scarlet.source.Source.image">
+<code class="descname">image</code><a class="headerlink" href="#scarlet.source.Source.image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reshaped morphology into an array of 2D images for each component</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="scarlet.source.Source.resize">
+<code class="descname">resize</code><span class="sig-paren">(</span><em>size</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source.resize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source.resize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resize the frame</p>
+<p>Set the new frame size and update relevant parameters like the morphology,
+Gamma matrices, and constraint operators.</p>
+<dl class="docutils">
+<dt>size: float or array-like</dt>
+<dd>Either a (height,width) shape or a single size to create a
+square (size,size) frame.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="scarlet.source.Source.set_center">
+<code class="descname">set_center</code><span class="sig-paren">(</span><em>center</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#Source.set_center"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.Source.set_center" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a (y,x) <cite>center</cite>, update the frame and <cite>Gamma</cite></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="scarlet.source.Source.shape">
+<code class="descname">shape</code><a class="headerlink" href="#scarlet.source.Source.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shape of the source image (Band, Height, Width)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.source.get_integrated_sed">
+<code class="descclassname">scarlet.source.</code><code class="descname">get_integrated_sed</code><span class="sig-paren">(</span><em>img</em>, <em>weight</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#get_integrated_sed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.get_integrated_sed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculated the SED by summing the flux in the image in each band</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scarlet.source.get_pixel_sed">
+<code class="descclassname">scarlet.source.</code><code class="descname">get_pixel_sed</code><span class="sig-paren">(</span><em>img</em>, <em>position</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/scarlet/source.html#get_pixel_sed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#scarlet.source.get_pixel_sed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the SED at <cite>position</cite> in <cite>img</cite></p>
+<dl class="docutils">
+<dt>img: <cite>~numpy.array</cite></dt>
+<dd>(Bands, Height, Width) data array that contains a 2D image for each band</dd>
+<dt>position: array-like</dt>
+<dd>(y,x) coordinates of the source in the larger image</dd>
+</dl>
+<dl class="docutils">
+<dt>SED: <cite>~numpy.array</cite></dt>
+<dd>SED for a single source</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Fred Moolekamp and Peter Melchior.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

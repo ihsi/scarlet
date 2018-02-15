@@ -1,0 +1,8 @@
+Reference/API
+=============
+
+.. toctree::
+    :maxdepth: 2
+
+.. automodule:: scarlet.blend
+    :members:

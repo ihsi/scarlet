@@ -180,8 +180,11 @@ class LinearFilterChain:
             return result
         return self
 
-class LinearTranslation(LinearFilter):
-    """Linear translation in x and y
+class Translation(LinearFilter):
+    """Translation in x and y
+
+    Uses and Lanczos3 kernel to translate 2D component morpologies to a
+    given subpixel position on the image.
     """
     def __init__(self, dy=0, dx=0):
         """Initialize the filter
@@ -195,47 +198,32 @@ class LinearTranslation(LinearFilter):
             Fractional amount (from 0 to 1) to
             shift the image in the x-direction
         """
-        self.set_transform(dy, dx)
-
-    def set_transform(self, dy=0, dx=0):
-        """Create the image and coords for the transform
-
-        Parameters
-        ----------
-        dy: float
-            Fractional amount (from 0 to 1) to
-            shift the image in the y-direction
-        dx: float
-            Fractional amount (from 0 to 1) to
-            shift the image in the x-direction
-        """
         self.dy = dy
         self.dx = dx
-        sign_x = 1 if dx>= 0 else -1
-        sign_y = 1 if dy>= 0 else -1
-        dx = abs(dx)
-        dy = abs(dy)
-        ddx = 1.-dx
-        ddy = 1.-dy
-        self._flat_values = np.array([ddx*ddy, ddy*dx, ddx*dy, dx*dy])
-        slice_name = "LinearTranslation.Tyx_slice"
-        coord_name = "LinearTranslation.Tyx_coord"
-        key = (sign_y, sign_x)
-        self.key = key
+        a = 3
+        ij = np.arange(-a + 1, a)
+
+        key = None
+        coord_name = "Translation.coord"
+        slice_name = "Translation.slice"
         try:
             self._flat_coords = Cache.check(coord_name, key)
             self._slices = Cache.check(slice_name, key)
         except KeyError:
-            self._flat_coords = np.array([[0,0], [0,sign_x], [sign_y,0], [sign_y,sign_x]], dtype=int)
+            self._flat_coords = np.dstack(np.meshgrid(ij,ij, indexing='ij')).reshape(-1, 2)
             self._slices = get_filter_slices(self._flat_coords)
             Cache.set(coord_name, key, self._flat_coords)
             Cache.set(slice_name, key, self._slices)
+
+        Ly = np.sinc(dy - ij)*np.sinc((dy - ij)/a)
+        Lx = np.sinc(dx - ij)*np.sinc((dx - ij)/a)
+        self._flat_values = np.outer(Ly, Lx).flatten()
 
     @property
     def T(self):
         """Transpose the filter
         """
-        return LinearTranslation(-self.dy, -self.dx)
+        return Translation(-self.dy, -self.dx)
 
 class Gamma:
     """Combination of Linear (x,y) Transformation and PSF Convolution
@@ -287,7 +275,7 @@ class Gamma:
         """
         self.dx = dx
         self.dy = dy
-        self.translation = LinearTranslation(dy, dx)
+        self.translation = Translation(dy, dx)
 
     def update(self, psfs=None, center=None, dx=None, dy=None):
         """Update the psf convolution filter and/or the translations
@@ -316,7 +304,7 @@ class Gamma:
             If `dyx` is `None`, then the already built
             translation matrix is used.
         """
-        translation = LinearTranslation(*dyx)
+        translation = Translation(*dyx)
         if self.psfFilters is None:
             gamma = translation
         else:

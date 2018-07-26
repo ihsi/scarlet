@@ -6,18 +6,6 @@ import scipy.sparse
 import proxmin.utils
 from .cache import Cache
 
-def get_filter_slices(coords):
-    """Get the slices in x and y to apply a filter
-    """
-    z = np.zeros((len(coords),), dtype=int)
-    # Set the y slices
-    y_start = np.max([z, coords[:,0]], axis=0)
-    y_end = -np.min([z, coords[:,0]], axis=0)
-    # Set the x slices
-    x_start = np.max([z, coords[:,1]], axis=0)
-    x_end = -np.min([z, coords[:,1]], axis=0)
-    return y_start, y_end, x_start, x_end
-
 class LinearFilter:
     """A filter that can be applied to an image
 
@@ -62,7 +50,6 @@ class LinearFilter:
                              a `values` array with an odd number of rows and columns"""
                     raise ValueError(msg)
                 center = [values.shape[0]//2, values.shape[1]//2]
-            self.center = center
             x = np.arange(values.shape[1])
             y = np.arange(values.shape[0])
             x,y = np.meshgrid(x,y)
@@ -70,7 +57,6 @@ class LinearFilter:
             y -= center[0]
             coords = np.dstack([y,x])
         else:
-            self.center = None
             coords = np.array(coords)
         values = np.array(values)
         self._flat_values = np.array(values).reshape(-1)
@@ -119,6 +105,19 @@ class LinearFilter:
             apply_filter(X, self._flat_values, self._slices[0], self._slices[1],
                                  self._slices[2], self._slices[3], result)
             return result
+
+    def get_filter_slices(self, coords):
+        """Get the slices in x and y to apply a filter
+        """
+        z = np.zeros((len(coords),), dtype=int)
+        # Set the y slices
+        y_start = np.max([z, coords[:,0]], axis=0)
+        y_end = -np.min([z, coords[:,0]], axis=0)
+        # Set the x slices
+        x_start = np.max([z, coords[:,1]], axis=0)
+        x_end = -np.min([z, coords[:,1]], axis=0)
+        return y_start, y_end, x_start, x_end
+
 
 class LinearFilterChain:
     """Chain of `LinearFilter` objects
@@ -183,7 +182,7 @@ class LinearFilterChain:
 class Translation(LinearFilter):
     """Translation in x and y
 
-    Uses and Lanczos3 kernel to translate 2D component morpologies to a
+    Uses the Lanczos3 kernel to translate 2D component morpologies to a
     given subpixel position on the image.
     """
     def __init__(self, dy=0, dx=0):
@@ -203,6 +202,7 @@ class Translation(LinearFilter):
         a = 3
         ij = np.arange(-a + 1, a)
 
+        # cache coords and slices because they are the same every time
         key = None
         coord_name = "Translation.coord"
         slice_name = "Translation.slice"
@@ -211,10 +211,11 @@ class Translation(LinearFilter):
             self._slices = Cache.check(slice_name, key)
         except KeyError:
             self._flat_coords = np.dstack(np.meshgrid(ij,ij, indexing='ij')).reshape(-1, 2)
-            self._slices = get_filter_slices(self._flat_coords)
+            self._slices = self.get_filter_slices(self._flat_coords)
             Cache.set(coord_name, key, self._flat_coords)
             Cache.set(slice_name, key, self._slices)
 
+        # no point in caching the Lanczos kernel for every dy/dx
         Ly = np.sinc(dy - ij)*np.sinc((dy - ij)/a)
         Lx = np.sinc(dx - ij)*np.sinc((dx - ij)/a)
         self._flat_values = np.outer(Ly, Lx).flatten()

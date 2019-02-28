@@ -48,16 +48,7 @@ class Component(object):
         # check that morph has odd dimensions
         assert len(morph.shape) == 2
         Ny, Nx = morph.shape
-        if all([morph.shape[i] % 2 == 1 for i in range(2)]):
-            self.morph = morph.copy()
-        else:
-            _Ny, _Nx = Ny, Nx
-            if _Ny % 2 == 0:
-                _Ny += 1
-            if _Nx % 2 ==0:
-                _Nx += 1
-            self.morph = np.zeros((_Ny, _Nx))
-            self.morph[:Ny,:Nx] = morph[:,:]
+        self.morph = morph.copy()
 
         # set up psf and translations matrices
         from . import transformation
@@ -244,8 +235,8 @@ class Component(object):
 
         # ensure odd pixel number
         y, x = Component.get_int(center)
-        _bottom, _top = y - int(new_shape[0]//2), y + int(new_shape[0]//2) + 1
-        _left, _right = x - int(new_shape[1]//2), x + int(new_shape[1]//2) + 1
+        _bottom, _top = y - int(new_shape[0]//2), y + round(new_shape[0]/2)
+        _left, _right = x - int(new_shape[1]//2), x + round(new_shape[1]/2)
 
         # slices to update _morph: check if new size is larger or smaller
         new_slice_y = slice(max(0, bottom - _bottom),
@@ -276,8 +267,8 @@ class Component(object):
         # ensure odd pixel number
         y, x = Component.get_int(self.center)
         shape = self.morph.shape
-        self.bottom, self.top = y - int(shape[0]//2), y + int(shape[0]//2) + 1
-        self.left, self.right = x - int(shape[1]//2), x + int(shape[1]//2) + 1
+        self.bottom, self.top = y - int(shape[0]//2), y + round(shape[0]//2)
+        self.left, self.right = x - int(shape[1]//2), x + round(shape[1]//2)
 
     def resize(self, size):
         """Resize the frame
